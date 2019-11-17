@@ -1,24 +1,16 @@
-/*
- * Created by JFormDesigner on Sun Nov 17 21:10:52 ICT 2019
- */
-
 package View;
 
 import java.awt.*;
 import javax.swing.*;
 import net.miginfocom.swing.*;
 
-/**
- * @author Vo Hong Son
- */
 public class BattleView extends JFrame {
 	public BattleView() {
 		initComponents();
 	}
 
 	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		// Generated using JFormDesigner Evaluation license - Vo Hong Son
+		
 		label1 = new JLabel();
 		button1 = new JButton();
 		label2 = new JLabel();
