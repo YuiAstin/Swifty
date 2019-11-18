@@ -15,6 +15,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.layout.FormSpecs;
+
+import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -34,6 +36,7 @@ public class SignUp extends JFrame {
 	private JTextField txtLastname;
 	private JPasswordField txtPassword;
 	private JPasswordField txtConPassword;
+	private JFrame loginFrame; 
 
 	/**
 	 * Launch the application.
@@ -58,11 +61,13 @@ public class SignUp extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 480, 500);
 		contentPane = new JPanel();
+		contentPane.setBackground(new Color(44, 43, 43));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
 		JPanel panel = new JPanel();
+		panel.setBackground(new Color(44, 43, 43));
 		contentPane.add(panel, BorderLayout.CENTER);
 		
 		JLabel lblUser = new JLabel("Username (Email)");
@@ -72,6 +77,8 @@ public class SignUp extends JFrame {
 		txtUser = new JTextField();
 		lblUser.setLabelFor(txtUser);
 		txtUser.setColumns(10);
+		txtUser.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		TextPrompt user = new TextPrompt("Username", txtUser);
 		
 		JLabel lblPassword = new JLabel("Password");
 		lblPassword.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -88,9 +95,13 @@ public class SignUp extends JFrame {
 		txtFirstname = new JTextField();
 		lblFullname.setLabelFor(txtFirstname);
 		txtFirstname.setColumns(10);
+		txtFirstname.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		TextPrompt firstName = new TextPrompt("First Name", txtFirstname);
 		
 		txtLastname = new JTextField();
 		txtLastname.setColumns(10);
+		txtLastname.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		TextPrompt lastName = new TextPrompt("Last Name", txtLastname);
 		
 		JLabel lblGender = new JLabel("Gender");
 		lblGender.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -104,11 +115,17 @@ public class SignUp extends JFrame {
 		
 		txtPassword = new JPasswordField();
 		lblPassword.setLabelFor(txtPassword);
+		txtPassword.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		TextPrompt password = new TextPrompt("Password", txtPassword);
 		
 		txtConPassword = new JPasswordField();
+		lblConfirmPassword.setLabelFor(txtConPassword);
+		txtConPassword.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		TextPrompt conPassword = new TextPrompt("Confirm password", txtConPassword);
 		
 		JFormattedTextField txtBirthday = new JFormattedTextField();
 		lblBirthday.setLabelFor(txtBirthday);
+		txtBirthday.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 		
 		JButton btnSignUp = new JButton("Sign Up");
 		btnSignUp.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -120,6 +137,12 @@ public class SignUp extends JFrame {
 		label.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 62));
 		
 		JButton btnBack = new JButton("Back");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loginFrame.setVisible(true);
+				SignUp.this.setVisible(false);
+			}
+		});
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnBack.setBackground(new Color(38, 153, 251));
 		btnBack.setForeground(new Color(255, 255, 255));
@@ -151,7 +174,7 @@ public class SignUp extends JFrame {
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(txtUser)
+								.addComponent(txtUser, GroupLayout.DEFAULT_SIZE, 202, GroupLayout.DEFAULT_SIZE)
 								.addComponent(lblFullname)
 								.addComponent(lblConfirmPassword)
 								.addComponent(lblPassword)
@@ -188,26 +211,26 @@ public class SignUp extends JFrame {
 					.addComponent(lblUser)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblErrorMessage))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(lblPassword)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(txtPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtPassword, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblErrorMessage_1))
 					.addGap(11)
 					.addComponent(lblConfirmPassword)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(txtConPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtConPassword, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblErrorMessage_2))
 					.addGap(11)
 					.addComponent(lblFullname)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(txtFirstname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(txtFirstname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblGender)
@@ -215,7 +238,7 @@ public class SignUp extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(selGender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblErrorMessage_3))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnSignUp, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
@@ -224,5 +247,9 @@ public class SignUp extends JFrame {
 		panel.setLayout(gl_panel);
 		
 		
+	}
+
+	public void loginFrame(JFrame loginFrame) {
+		this.loginFrame = loginFrame;
 	}
 }
