@@ -14,6 +14,7 @@ public class Miscellaneous {
 			temp = RandomwRange(up,down);
 			if(!mappu.containsKey(temp))
 				mappu.put(temp, 1);
+			i++;
 		}
 		temp = "\"SpedupNum\": [";
 		for ( var j :mappu.keySet())
