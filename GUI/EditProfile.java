@@ -6,7 +6,9 @@ import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.MaskFormatter;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import java.awt.GridLayout;
 import java.awt.GridBagLayout;
@@ -25,8 +27,12 @@ import javax.swing.JPasswordField;
 import javax.swing.JFormattedTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+import javax.swing.DefaultComboBoxModel;
 
 public class EditProfile extends JFrame {
 
@@ -107,6 +113,7 @@ public class EditProfile extends JFrame {
 		lblGender.setForeground(new Color(106, 186, 255));
 		
 		JComboBox selGender = new JComboBox();
+		selGender.setModel(new DefaultComboBoxModel(new String[] {"Male", "Female"}));
 		
 		JLabel lblBirthday = new JLabel("Birthday");
 		lblBirthday.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -122,19 +129,12 @@ public class EditProfile extends JFrame {
 		txtConPassword.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 		TextPrompt conPassword = new TextPrompt("Confirm password", txtConPassword);
 		
-		JFormattedTextField txtBirthday = new JFormattedTextField();
+		MaskFormatter formatter = new TimeFormatter();
+		formatter.setValueClass(java.util.Date.class);
+		JFormattedTextField txtBirthday = new JFormattedTextField(formatter);
 		lblBirthday.setLabelFor(txtBirthday);
 		txtBirthday.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 		
-		JButton btnClearFields = new JButton("Clear fields");
-		btnClearFields.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnClearFields.setBackground(new Color(38, 153, 251));
-		btnClearFields.setForeground(new Color(255, 255, 255));
-		
-		JButton btnSaveChanges = new JButton("Save changes");
-		btnSaveChanges.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnSaveChanges.setBackground(new Color(38, 153, 251));
-		btnSaveChanges.setForeground(new Color(255, 255, 255));
 		
 		JLabel label = new JLabel("SWIFTY", SwingConstants.CENTER);
 		label.setForeground(new Color(106, 186, 255));
@@ -146,20 +146,92 @@ public class EditProfile extends JFrame {
 		btnBack.setForeground(new Color(255, 255, 255));
 		
 		JLabel lblErrorMessage = new JLabel("Error message");
+		lblErrorMessage.setLabelFor(txtUser);
 		lblErrorMessage.setForeground(Color.RED);
 		lblErrorMessage.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblErrorMessage.setVisible(false);
 		
 		JLabel lblErrorMessage_1 = new JLabel("Error message");
+		lblErrorMessage_1.setLabelFor(txtPassword);
 		lblErrorMessage_1.setForeground(Color.RED);
 		lblErrorMessage_1.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblErrorMessage_1.setVisible(false);
 		
 		JLabel lblErrorMessage_2 = new JLabel("Error message");
+		lblErrorMessage_2.setLabelFor(txtConPassword);
 		lblErrorMessage_2.setForeground(Color.RED);
 		lblErrorMessage_2.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblErrorMessage_2.setVisible(false);
 		
 		JLabel lblErrorMessage_3 = new JLabel("Error message");
+		lblErrorMessage_3.setLabelFor(txtBirthday);
 		lblErrorMessage_3.setForeground(Color.RED);
 		lblErrorMessage_3.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblErrorMessage_3.setVisible(false);
+		
+		JButton btnClearFields = new JButton("Clear");
+		btnClearFields.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				txtUser.setText(null);
+				txtPassword.setText(null);
+				txtConPassword.setText(null);
+				txtFirstname.setText(null);
+				txtLastname.setText(null);
+			}
+		});
+		btnClearFields.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnClearFields.setBackground(new Color(38, 153, 251));
+		btnClearFields.setForeground(new Color(255, 255, 255));
+		
+		JButton btnSaveChanges = new JButton("Save changes");
+		btnSaveChanges.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String _user =  txtUser.getText();
+				String _pass =  txtPassword.getText();
+				String _conPass =  txtConPassword.getText();
+				String _firstName =  txtFirstname.getText();
+				String _lastName =  txtLastname.getText();
+				int _gender =  selGender.getSelectedIndex(); // 0: Male -- 1: Female
+				String _birthday =  txtBirthday.getText();
+				
+				if (_user.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Username is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage.setText("Username is empty!");
+					lblErrorMessage.setVisible(true);
+					return ;
+				} else lblErrorMessage.setVisible(false);
+				if (_pass.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Password is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_1.setText("Password is empty!");
+					lblErrorMessage_1.setVisible(true);
+					return ;
+				} else lblErrorMessage_1.setVisible(false);
+				
+				if (!_pass.contentEquals(_conPass)) {
+					JOptionPane.showMessageDialog(null, "Confirm password does not match!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_1.setText("Confirm password does not match!");
+					lblErrorMessage_1.setVisible(true);
+					lblErrorMessage_2.setText("Confirm password does not match!");
+					lblErrorMessage_2.setVisible(true);
+					return ;
+				} else { lblErrorMessage_1.setVisible(false); lblErrorMessage_2.setVisible(false); }
+				_pass = passwordMD5(_pass);
+				System.out.println("User: " + _user);
+				System.out.println("Pass: " + _pass);
+				System.out.println("Confirm Password: " + _conPass);
+				System.out.println("Firstname: " + _firstName);
+				System.out.println("Lastname: " + _lastName);
+				System.out.println("Gender: " + _gender);
+				System.out.println("Birthday: " + _birthday);
+				System.out.println(_pass.contentEquals(_conPass));
+				System.out.println(_pass.equals(_conPass));
+			}
+		});
+		btnSaveChanges.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnSaveChanges.setBackground(new Color(38, 153, 251));
+		btnSaveChanges.setForeground(new Color(255, 255, 255));
+		
+		
 		
 		
 		
@@ -250,4 +322,23 @@ public class EditProfile extends JFrame {
 		
 		
 	}
+
+	private String passwordMD5(String pass) {
+		MessageDigest md;
+		StringBuilder sb = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			byte[] hashInBytes = md.digest(pass.getBytes(StandardCharsets.UTF_8));
+			
+			sb = new StringBuilder();
+			for (byte b : hashInBytes) {
+	            sb.append(String.format("%02x", b));
+	        }
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return sb.toString();
+	}
+	
 }

@@ -7,14 +7,20 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.SystemColor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.awt.Font;
 import java.awt.FontFormatException;
 
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -66,24 +72,27 @@ public class Login extends JFrame {
 		signUp.setVisible(false);
 		signUp.loginFrame(Login.this);
 		
-		JLabel lblSwifty = new JLabel("SWIFTY", JLabel.CENTER);
+//		JLabel lblSwifty = new JLabel("New label");
+		JLabel lblSwifty = new JLabel("SWIFTY", SwingConstants.CENTER);
 		lblSwifty.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 62));
 		lblSwifty.setForeground(new Color(106, 186, 255));
-		contentPane.add(lblSwifty, BorderLayout.NORTH);
+//		contentPane.add(lblSwifty, BorderLayout.NORTH);
+		
+		
 		
 		panel = new JPanel();
 		panel.setBackground(new Color(44, 43, 43));
 		panel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 		contentPane.add(panel, BorderLayout.CENTER);
 //		TextPrompt password = new TextPrompt("Password", txtPassword);
-		
+//		panel.a
 		
 		txtUsername = new JTextField();
 //		txtUsername.setText("Username");
 		txtUsername.setColumns(10);
 		txtUsername.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 //		txtUsername.set
-		TextPrompt user = new TextPrompt("Username", txtUsername);
+		TextPrompt txtUser = new TextPrompt("Username", txtUsername);
 		
 		
 		txtPassword = new JPasswordField();
@@ -94,6 +103,20 @@ public class Login extends JFrame {
 		JButton btnNewButton = new JButton("Sign in");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String userName = txtUsername.getText();
+				String password = txtPassword.getText();
+				if (userName.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Username is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					return ;
+				}
+				if (password.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Password is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					return ;
+				}
+				password = passwordMD5(password);
+				System.out.println("User: " + userName);
+				System.out.println("Pass: " + password);
+				
 			}
 		});
 		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 18));
@@ -128,6 +151,8 @@ public class Login extends JFrame {
 		
 		
 		
+		
+		
 //		JLabel lblPassLabel = new JLabel("Password");
 //		Icon icon = IconFontSwing.buildIcon(FontAwesome.SMILE_O, 40, new Color(0, 150, 0));
 		
@@ -144,28 +169,30 @@ public class Login extends JFrame {
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
+					.addGap(57)
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(57)
-							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING, false)
-								.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 225, GroupLayout.PREFERRED_SIZE)
-								.addGroup(gl_panel.createSequentialGroup()
-									.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-										.addComponent(lblUserLabel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
-										.addComponent(label, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
-									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
-										.addComponent(txtPassword)
-										.addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(195)
-							.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(90, Short.MAX_VALUE))
+						.addComponent(lblSwifty, GroupLayout.PREFERRED_SIZE, 299, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+							.addGroup(gl_panel.createSequentialGroup()
+								.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+									.addComponent(lblUserLabel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
+									.addComponent(label, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
+								.addPreferredGap(ComponentPlacement.UNRELATED)
+								.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
+									.addComponent(txtPassword)
+									.addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))
+							.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 225, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(68, Short.MAX_VALUE))
+				.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
+					.addGap(196)
+					.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(170, Short.MAX_VALUE))
 		);
 		gl_panel.setVerticalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
-					.addGap(30)
+					.addComponent(lblSwifty)
+					.addGap(16)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(txtUsername, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblUserLabel))
@@ -177,9 +204,27 @@ public class Login extends JFrame {
 					.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblNewLabel)
-					.addContainerGap(28, Short.MAX_VALUE))
+					.addContainerGap(36, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		
+	}
+
+	private String passwordMD5(String pass) {
+		MessageDigest md;
+		StringBuilder sb = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			byte[] hashInBytes = md.digest(pass.getBytes(StandardCharsets.UTF_8));
+			
+			sb = new StringBuilder();
+			for (byte b : hashInBytes) {
+	            sb.append(String.format("%02x", b));
+	        }
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return sb.toString();
 	}
 }
