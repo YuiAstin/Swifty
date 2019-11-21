@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UpdateMatch {
-	public String S_updateMatch(JSONObject obj)
+	static public String S_updateMatch(JSONObject obj)
 	{		  
 		String result="\"Error code\": \"Er2\",\n";
 		try {
@@ -19,7 +19,7 @@ public class UpdateMatch {
 		}
 		
 	}
-	public String R_updateMatch()
+	static public String R_updateMatch()
 	{
 		return "";
 	}

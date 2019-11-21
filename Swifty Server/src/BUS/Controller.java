@@ -21,6 +21,7 @@ public class Controller {
 				//case "Logout": return cleanupLobby(); -- To do later
 				//case "Create room": return createRoom(); -- To do later
 				//case "Join room": return joinRoom(); -- To do later
+				//case "MatchUpdate": return UpdateMatch.R_updateMatch();
 			}
 			return "Er4"; // Er4 = Controller error
 		} catch (JSONException e) {
