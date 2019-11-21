@@ -192,13 +192,13 @@ public class database {
 		}
 	  }	  
 	  
-	  public String get_aPlayerInfo(String id)
+	  public String get_aPlayerInfo(String username)
 	  {		  
 		  String result = "Er1"; // Er1 = cannot get setting from db
 		  try {		 
-			 String sql = "SELECT * FROM player WHERE player_id = ?";
+			 String sql = "SELECT * FROM player WHERE username = ?";
 			 preparedStatement = connect.prepareStatement(sql);
-			 preparedStatement.setInt(1, Integer.parseInt(id));
+			 preparedStatement.setString(1, username);
 			 if(!preparedStatement.execute())
 			 {
 				 System.out.println("broke");
@@ -241,7 +241,7 @@ public class database {
 			 			+ "}"; 
 		  try {
 			 String difficulty = "normal";			 
-			 //difficulty = updatediff(); --To do later
+			 difficulty = BUS.Miscellaneous.updateDiff();
 			 String sql = "SELECT * FROM server_config WHERE config_id = ?";
 			 //String sql = "SELECT * FROM SERVER_CONFIG";
 			 preparedStatement = connect.prepareStatement(sql);

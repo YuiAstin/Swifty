@@ -1,5 +1,10 @@
 package BUS;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -29,5 +34,22 @@ public class Miscellaneous {
 		Random randomGenerator = new Random();
 		int randomInt = randomGenerator.nextInt(up) + down;
 		return Integer.toString(randomInt);
+	}
+	static public String updateDiff()
+	{
+		try {
+			FileReader in = new FileReader("Diff.txt");			
+			BufferedReader br = new BufferedReader(in);
+			String temp=null,diff=null;
+			while((temp = br.readLine()) != null)
+			{
+				diff=temp;
+			}
+			return diff;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "normal";
 	}
 }

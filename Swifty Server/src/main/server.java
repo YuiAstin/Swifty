@@ -13,13 +13,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+
+import BUS.Controller;
 import DAL.database;
 
 public class server extends Thread{
 
 	private ServerSocket serverSocket = null;
 	private Socket socket = null;
-	private static HashMap<String,Integer> mappu = new HashMap<String,Integer>();
+	private static HashMap<String,Integer> Lobby = new HashMap<String,Integer>();
+	
 	public server(Socket socket)
 	{
 		this.socket = socket;
@@ -33,7 +36,8 @@ public class server extends Thread{
 				JSONObject jOb = new JSONObject();
 				JSONWriter jwrite = new JSONStringer(); 
 				System.out.println("Client " + socket.getRemoteSocketAddress() + " accepted");
-				
+				database a = new database();
+				a.initConnection();
 				// input & output stream			
 				DataInputStream dis = new DataInputStream(socket.getInputStream());
 				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -42,9 +46,9 @@ public class server extends Thread{
 				{
 					String temp = dis.readUTF();
 					try {
-						JSONObject obu = new JSONObject(temp);
-						
-						
+						JSONObject obj = new JSONObject(temp);
+						data = Controller.Enroute(obj, a);
+						dos.writeUTF(data);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -62,26 +66,26 @@ public class server extends Thread{
 	}
 	static public void main(String[] args)
 	{
-//		ServerSocket serverSocket = null;
-//        Socket socket = null;
-//
-//        try {
-//            serverSocket = new ServerSocket(5000);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//
-//        }
-//        while (true) {
-//            try {
-//                socket = serverSocket.accept();
-//            } catch (IOException e) {
-//                System.out.println("I/O error: " + e);
-//            }
-//            // new thread for a client
-//            new server(socket).start();
-//        }
-		database a = new database();
-		a.initConnection();
+		ServerSocket serverSocket = null;
+        Socket socket = null;
+
+        try {
+            serverSocket = new ServerSocket(5000);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+        while (true) {
+            try {
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                System.out.println("I/O error: " + e);
+            }
+            // new thread for a client
+            new server(socket).start();
+        }
+		
+		
 		//Test Register func
 //		JSONObject obj=null;
 //		try {
@@ -100,7 +104,7 @@ public class server extends Thread{
 //			e.printStackTrace();
 //		}
 //		a.set_registerPlayer(obj);
-		a.recordMatch(1);
+		
 	}
 }
 
