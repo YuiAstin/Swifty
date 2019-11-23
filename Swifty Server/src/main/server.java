@@ -82,6 +82,8 @@ public class server extends Thread{
 //        }
 		database a = new database();
 		a.initConnection();
+		server b = new server();
+		b.start_server();
 		//Test Register func
 //		JSONObject obj=null;
 //		try {
@@ -100,7 +102,6 @@ public class server extends Thread{
 //			e.printStackTrace();
 //		}
 //		a.set_registerPlayer(obj);
-		a.recordMatch(1);
 	}
 }
 

@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.SystemColor;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +41,8 @@ public class Login extends JFrame {
 	private JTextField txtUsername;
 	private JPanel panel;
 	private JPasswordField txtPassword;
+	
+	
 
 	/**
 	 * Launch the application.
@@ -47,7 +51,7 @@ public class Login extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Login frame = new Login();
+					Login frame = new Login(null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -59,7 +63,8 @@ public class Login extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Login() {
+	
+	public Login(DataInputStream dis, DataOutputStream dos) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 320);
 		contentPane = new JPanel();
@@ -117,6 +122,20 @@ public class Login extends JFrame {
 				System.out.println("User: " + userName);
 				System.out.println("Pass: " + password);
 				
+				try {
+					String command ="{\n"
+							+ "\"Type\": \"Signin\",\n"				 		
+					 		+ "\"Errorcode\": \"Er0\",\n"
+					 		+ "\"Username\": \""+userName+"\",\n"
+					 		+ "\"Password\": \""+password+"\",\n"
+					 		+ "}";
+					dos.writeUTF(command);
+					String respond = dis.readUTF();
+					System.out.println("Respond: " + respond);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 18));

@@ -78,7 +78,7 @@ public class SignUp extends JFrame {
 		panel.setBackground(new Color(44, 43, 43));
 		contentPane.add(panel, BorderLayout.CENTER);
 		
-		JLabel lblUser = new JLabel("Username (Email)");
+		JLabel lblUser = new JLabel("Username");
 		lblUser.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblUser.setForeground(new Color(106, 186, 255));
 		
