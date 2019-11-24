@@ -8,6 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.MaskFormatter;
+
+import org.json.JSONObject;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -28,6 +31,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JFormattedTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,7 +59,7 @@ public class SignUp extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					SignUp frame = new SignUp();
+					SignUp frame = new SignUp(null,null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -65,7 +71,7 @@ public class SignUp extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public SignUp() {
+	public SignUp(DataInputStream dis, DataOutputStream dos) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 480, 500);
 		contentPane = new JPanel();
@@ -158,6 +164,7 @@ public class SignUp extends JFrame {
 		lblErrorMessage_2.setVisible(false);
 		
 		JLabel lblErrorMessage_3 = new JLabel("Error message");
+		lblErrorMessage_3.setLabelFor(txtLastname);
 		lblErrorMessage_3.setForeground(Color.RED);
 		lblErrorMessage_3.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblErrorMessage_3.setVisible(false);
@@ -195,7 +202,25 @@ public class SignUp extends JFrame {
 					lblErrorMessage_2.setVisible(true);
 					return ;
 				} else { lblErrorMessage_1.setVisible(false); lblErrorMessage_2.setVisible(false); }
+				
+				if (_firstName.isBlank()) {
+					JOptionPane.showMessageDialog(null, "First name is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_3.setText("First name is empty!");
+					lblErrorMessage_3.setVisible(true);
+					return ;
+				} else lblErrorMessage_3.setVisible(false);
+				
+				if (_lastName.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Last name is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_3.setText("Last name is empty!");
+					lblErrorMessage_3.setVisible(true);
+					return ;
+				} else lblErrorMessage_3.setVisible(false);
+				
 				_pass = passwordMD5(_pass);
+				
+				
+				
 				System.out.println("User: " + _user);
 				System.out.println("Pass: " + _pass);
 				System.out.println("Confirm Password: " + _conPass);
@@ -205,6 +230,32 @@ public class SignUp extends JFrame {
 				System.out.println("Birthday: " + _birthday);
 				System.out.println(_pass.contentEquals(_conPass));
 				System.out.println(_pass.equals(_conPass));
+				
+				
+				try {
+					String command ="{\n"
+							+ "\"Type\": \"Signup\",\n"
+					 		+ "\"Errorcode\": \"Er0\",\n"			 		
+					 		+ "\"Username\": \""+_user+"\",\n"
+					 		+ "\"Password\": \""+_pass+"\",\n"
+					 		+ "\"FnameLname\": \""+ _firstName + _lastName +"\",\n"
+			 				+ "\"Gender\": \""+_gender+"\",\n"
+					 		+ "\"Birthday\": \""+_birthday+"\"\n"
+					 		+ "}";
+					dos.writeUTF(command);
+					String respond = dis.readUTF();
+					System.out.println("Respond: " + respond);
+					if (respond.equals("Er1")) {
+						JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
+					}
+					else {
+						JSONObject obj = new JSONObject(respond);
+						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 //				if (txtPassword)
 //				JOptionPane.showMessageDialog(null, "My Goodness, this is so concise", "Error",JOptionPane.ERROR_MESSAGE);
@@ -298,7 +349,8 @@ public class SignUp extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(txtFirstname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblErrorMessage_3))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblGender)
@@ -306,11 +358,10 @@ public class SignUp extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(selGender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblErrorMessage_3))
+						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnSignUp, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(79, Short.MAX_VALUE))
+					.addContainerGap(81, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		

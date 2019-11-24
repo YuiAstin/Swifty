@@ -16,22 +16,22 @@ class TimeFormatter extends MaskFormatter {
   }
   @Override
   public Object stringToValue(String string) throws ParseException {
-    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
     if (string == null) {
-      string = "00/00/0000";
+      string = "0000-00-00";
     }
     
     String today = df.format(new Date());
-    int maxVal = Integer.parseInt(today.substring(today.length()-4));
-    if (Integer.parseInt(string.substring(string.length()-4)) > maxVal) {
-    	string = string.substring(0, string.length()-5) + maxVal;
+    int maxVal = Integer.parseInt(today.substring(0,4));
+    if (Integer.parseInt(string.substring(0,4)) > maxVal) {
+    	string = maxVal + string.substring(4, string.length());
     }
     	
     return df.parse(string);
   }
   @Override
   public String valueToString(Object value) throws ParseException {
-    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
     if (value == null) {
       value = new Date(0);
     }

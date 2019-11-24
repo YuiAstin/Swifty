@@ -6,6 +6,11 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONWriter;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -73,9 +78,11 @@ public class Login extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
-		SignUp signUp = new SignUp();
+		SignUp signUp = new SignUp(dis, dos);
 		signUp.setVisible(false);
 		signUp.loginFrame(Login.this);
+		
+		
 		
 //		JLabel lblSwifty = new JLabel("New label");
 		JLabel lblSwifty = new JLabel("SWIFTY", SwingConstants.CENTER);
@@ -132,7 +139,15 @@ public class Login extends JFrame {
 					dos.writeUTF(command);
 					String respond = dis.readUTF();
 					System.out.println("Respond: " + respond);
-				} catch (IOException e1) {
+					if (respond.equals("Er1")) {
+						JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error",JOptionPane.ERROR_MESSAGE);
+					}
+					else {
+						JSONObject obj = new JSONObject(respond);
+						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+					}
+						
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -226,7 +241,7 @@ public class Login extends JFrame {
 					.addContainerGap(36, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
-		
+		this.getRootPane().setDefaultButton(btnNewButton);
 	}
 
 	private String passwordMD5(String pass) {
