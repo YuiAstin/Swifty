@@ -7,6 +7,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -27,6 +31,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JFormattedTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -42,6 +48,8 @@ public class EditProfile extends JFrame {
 	private JTextField txtLastname;
 	private JPasswordField txtPassword;
 	private JPasswordField txtConPassword;
+	private JComboBox selGender;
+	private JFormattedTextField txtBirthday;
 
 	/**
 	 * Launch the application.
@@ -50,7 +58,7 @@ public class EditProfile extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditProfile frame = new EditProfile();
+					EditProfile frame = new EditProfile(null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,7 +70,7 @@ public class EditProfile extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public EditProfile() {
+	public EditProfile(DataInputStream dis, DataOutputStream dos) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 480, 500);
 		contentPane = new JPanel();
@@ -164,7 +172,7 @@ public class EditProfile extends JFrame {
 		lblErrorMessage_2.setVisible(false);
 		
 		JLabel lblErrorMessage_3 = new JLabel("Error message");
-		lblErrorMessage_3.setLabelFor(txtBirthday);
+		lblErrorMessage_3.setLabelFor(txtLastname);
 		lblErrorMessage_3.setForeground(Color.RED);
 		lblErrorMessage_3.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblErrorMessage_3.setVisible(false);
@@ -215,6 +223,21 @@ public class EditProfile extends JFrame {
 					lblErrorMessage_2.setVisible(true);
 					return ;
 				} else { lblErrorMessage_1.setVisible(false); lblErrorMessage_2.setVisible(false); }
+				
+				if (_firstName.isBlank()) {
+					JOptionPane.showMessageDialog(null, "First name is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_3.setText("First name is empty!");
+					lblErrorMessage_3.setVisible(true);
+					return ;
+				} else lblErrorMessage_3.setVisible(false);
+				
+				if (_lastName.isBlank()) {
+					JOptionPane.showMessageDialog(null, "Last name is empty!", "Error",JOptionPane.ERROR_MESSAGE);
+					lblErrorMessage_3.setText("Last name is empty!");
+					lblErrorMessage_3.setVisible(true);
+					return ;
+				} else lblErrorMessage_3.setVisible(false);
+				
 				_pass = passwordMD5(_pass);
 				System.out.println("User: " + _user);
 				System.out.println("Pass: " + _pass);
@@ -302,7 +325,8 @@ public class EditProfile extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(txtFirstname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+						.addComponent(txtLastname, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblErrorMessage_3))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblGender)
@@ -310,13 +334,12 @@ public class EditProfile extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(selGender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblErrorMessage_3))
+						.addComponent(txtBirthday, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING, false)
 						.addComponent(btnSaveChanges, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(btnClearFields, GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
-					.addContainerGap(103, Short.MAX_VALUE))
+					.addContainerGap(81, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		
@@ -339,6 +362,18 @@ public class EditProfile extends JFrame {
 			e.printStackTrace();
 		}
         return sb.toString();
+	}
+	
+	public void loadProfile(JSONObject obj) throws JSONException {
+		
+		
+		txtUser.setText(obj.getString("Username"));
+		txtPassword.setText(null);
+		txtConPassword.setText(null);
+//		txtFirstname.setText(obj.getString("Firstname"));
+//		txtLastname.setText(obj.getString("Lastname"));
+		selGender.setSelectedIndex(obj.getInt("Gender"));
+		txtBirthday.setText(obj.getString("Birthday"));
 	}
 	
 }

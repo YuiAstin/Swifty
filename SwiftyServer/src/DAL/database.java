@@ -1,11 +1,14 @@
 package DAL;
 
+import java.io.DataOutputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import main.server;
 public class database {
 	
 		
@@ -208,7 +211,7 @@ public class database {
 	  {		  
 		  String result = "Er1"; // Er1 = cannot get setting from db
 		  try {		 
-			 String sql = "SELECT * FROM player WHERE username = ?";
+			 String sql = "SELECT * FROM player WHERE player_id = ?";
 			 preparedStatement = connect.prepareStatement(sql);
 			 preparedStatement.setString(1, username);
 			 if(!preparedStatement.execute())
@@ -242,15 +245,15 @@ public class database {
 		  
 	  }
 	  
-	  public String get_matchSetting()
+	  public String get_matchSetting() // start game
 	  {
 		  String result = "{\n"				 		
-			 			+ "\"Status\": \"Failed\"\n"
-			 			+ "\"Errorcode\": \"Er1\"\n"// Er1 = cannot get setting from db
-			 			+ "\"Time\": \"\",n"
-			 			+ "\"fieldSize\": \"\",n"
-			 			+ "\"SpedupNum\": [0,-1]"
-			 			+ "}"; 
+		 			+ "\"Status\": \"Failed\",\n"
+		 			+ "\"Errorcode\": \"Er1\",\n"// Er1 = cannot get setting from db
+		 			+ "\"Time\": \"\",\n"
+		 			+ "\"fieldSize\": \"\",\n"
+		 			+ "\"SpedupNum\": [0,-1],\n";
+//			 			+ ""; 
 		  try {
 			 String difficulty = "normal";			 
 			 difficulty = BUS.Miscellaneous.updateDiff();
@@ -299,7 +302,7 @@ public class database {
 	    }
 	  }
 
-	public String signin(String username, String pass) {
+	public String signin(String username, String pass, DataOutputStream dos) {
 		// TODO Auto-generated method stub
 		String result = "Er1"; // Er1 = cannot get setting from db
 		  try {		 
@@ -328,6 +331,14 @@ public class database {
 				 		+ "\"Birthday\": \""+resultSet.getString("ngsinh")+"\"\n"
 				 		+ "}";
 			 }
+			 
+			 // Generate ID player
+			 
+			server.Lobby.put(resultSet.getString("player_id"), -1);
+			server.Player.put(resultSet.getString("player_id"), dos);
+			server.Point.put(resultSet.getString("player_id"), 0);
+    
+			 
 			 System.out.println(result);
 			 return result;
 		} catch (SQLException e) {

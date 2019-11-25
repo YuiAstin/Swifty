@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -21,7 +23,9 @@ public class server extends Thread{
 
 	private ServerSocket serverSocket = null;
 	private Socket socket = null;
-	public static HashMap<String,Integer> Lobby = new HashMap<String,Integer>();
+	public static HashMap<String, Integer> Lobby = new HashMap<String,Integer>(); // PlayerID - ID_room
+	public static HashMap<String, DataOutputStream> Player = new HashMap<String,DataOutputStream>(); // PlayerID - socket
+	public static HashMap<String, Integer> Point = new HashMap<String,Integer>(); // PlayerID - Match point
 	
 	public server(Socket socket)
 	{
@@ -45,12 +49,39 @@ public class server extends Thread{
 				DataInputStream dis = new DataInputStream(socket.getInputStream());
 				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 				data="";
+				Lobby.put("ID1", 1);
+				Lobby.put("ID2", 2);
+				Lobby.put("ID3", -1);
+				Lobby.put("ID4", 1);
+				Lobby.put("ID5", 3);
+				Lobby.put("ID6", 5);
+				Lobby.put("ID7", 5);
+				Lobby.put("ID8", 3);
+				Collection ab = server.Lobby.values();
+				ArrayList<String> players = new ArrayList<String>();
+				players.add("One");
+				players.add("TWO");
+				players.add("tHree");
+				String unames = String.join("\",\"", players);
+				String abcdef = "\"Players\": [\""+ unames +"\"]}";
+				String result = "{\n"				 		
+			 			+ "\"Status\": \"Failed\"\n"
+			 			+ "\"Errorcode\": \"Er1\"\n"// Er1 = cannot get setting from db
+			 			+ "\"Time\": \"\",\n"
+			 			+ "\"fieldSize\": \"\",\n"
+			 			+ "\"SpedupNum\": [0,-1],\n";
+				
+				
+				System.out.println(result + abcdef);
+				for (var abc : ab) {
+					System.out.println(abc.toString());
+				}
 				while(true)
 				{
 					String temp = dis.readUTF();
 					try {
 						JSONObject obj = new JSONObject(temp);
-						data = Controller.Enroute(obj, a);
+						data = Controller.Enroute(obj, a, dos);
 						dos.writeUTF(data);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
@@ -105,6 +136,7 @@ public class server extends Thread{
         while (true) {
             try {
                 socket = serverSocket.accept();
+        		
             } catch (IOException e) {
                 System.out.println("I/O error: " + e);
             }
