@@ -7,7 +7,7 @@ import java.util.Date;
 class TimeFormatter extends MaskFormatter {
   public TimeFormatter() {
     try {
-      setMask("##/##/####");
+      setMask("####/##/##");
       setPlaceholderCharacter('0');
       setAllowsInvalid(false);
       setOverwriteMode(true);
@@ -17,9 +17,9 @@ class TimeFormatter extends MaskFormatter {
   }
   @Override
   public Object stringToValue(String string) throws ParseException {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
     if (string == null) {
-      string = "0000-00-00";
+      string = "0000/00/00";
     }
     
     String today = df.format(new Date());
@@ -32,10 +32,18 @@ class TimeFormatter extends MaskFormatter {
   }
   @Override
   public String valueToString(Object value) throws ParseException {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
     if (value == null) {
       value = new Date(0);
     }
-    return df.format((Date) value);
+    
+    String dateReturn = df.format((Date) value);
+    String today = df.format(new Date());
+    int maxVal = Integer.parseInt(today.substring(0,4));
+    if (Integer.parseInt(dateReturn.substring(0,4)) > maxVal) {
+    	dateReturn = maxVal + dateReturn.substring(4, dateReturn.length());
+    }
+    
+    return dateReturn;
   }
 }

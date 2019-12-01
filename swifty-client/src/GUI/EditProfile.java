@@ -51,6 +51,8 @@ public class EditProfile extends JFrame {
 	private JPasswordField txtConPassword;
 	private JComboBox selGender;
 	private JFormattedTextField txtBirthday;
+	private JFrame mainFrame;
+	private JSONObject user = null;
 
 	/**
 	 * Launch the application.
@@ -70,8 +72,9 @@ public class EditProfile extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws JSONException 
 	 */
-	public EditProfile(DataInputStream dis, DataOutputStream dos) {
+	public EditProfile(DataInputStream dis, DataOutputStream dos) throws JSONException {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 480, 500);
 		contentPane = new JPanel();
@@ -121,7 +124,7 @@ public class EditProfile extends JFrame {
 		lblGender.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblGender.setForeground(new Color(106, 186, 255));
 		
-		JComboBox selGender = new JComboBox();
+		selGender = new JComboBox();
 		selGender.setModel(new DefaultComboBoxModel(new String[] {"Male", "Female"}));
 		
 		JLabel lblBirthday = new JLabel("Birthday");
@@ -140,7 +143,7 @@ public class EditProfile extends JFrame {
 		
 		MaskFormatter formatter = new TimeFormatter();
 		formatter.setValueClass(java.util.Date.class);
-		JFormattedTextField txtBirthday = new JFormattedTextField(formatter);
+		txtBirthday = new JFormattedTextField(formatter);
 		lblBirthday.setLabelFor(txtBirthday);
 		txtBirthday.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
 		
@@ -150,6 +153,16 @@ public class EditProfile extends JFrame {
 		label.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 62));
 		
 		JButton btnBack = new JButton("Back");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Class mainClass = EditProfile.this.mainFrame.getClass();
+				if (mainClass == Square10.class) {
+					((Square10) EditProfile.this.mainFrame).user(EditProfile.this.user);
+				}
+				setVisible(false);
+				EditProfile.this.mainFrame.setVisible(true);
+			}
+		});
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnBack.setBackground(new Color(38, 153, 251));
 		btnBack.setForeground(new Color(255, 255, 255));
@@ -364,17 +377,22 @@ public class EditProfile extends JFrame {
 		}
         return sb.toString();
 	}
-	
-	public void loadProfile(JSONObject obj) throws JSONException {
-		
-		
+	public void mainFrame(JFrame mainFrame) {
+		this.mainFrame = mainFrame;
+	}
+	public void user(JSONObject user) {
+		this.user = user;
+	}
+	public void loadProfile() throws JSONException {
+		if (this.user == null) return;
+		JSONObject obj = this.user;
 		txtUser.setText(obj.getString("Username"));
 		txtPassword.setText(null);
 		txtConPassword.setText(null);
 //		txtFirstname.setText(obj.getString("Firstname"));
 //		txtLastname.setText(obj.getString("Lastname"));
 		selGender.setSelectedIndex(obj.getInt("Gender"));
-		txtBirthday.setText(obj.getString("Birthday"));
+		txtBirthday.setText(obj.getString("Birthday").replace("-", "/"));
 	}
 	
 }

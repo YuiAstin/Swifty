@@ -48,7 +48,6 @@ public class Login extends JFrame {
 	private JPanel panel;
 	private JPasswordField txtPassword;
 	
-	
 
 	/**
 	 * Launch the application.
@@ -143,9 +142,24 @@ public class Login extends JFrame {
 					if (respond.equals("Er1")) {
 						JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error",JOptionPane.ERROR_MESSAGE);
 					}
-					else {
+					else { // Login success
 						JSONObject obj = new JSONObject(respond);
 						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+						
+						Square10 sq = null;
+						switch (obj.getString("Config ID"))
+						{
+							case "easy": {
+								sq = new Square10(dis, dos, obj);
+								sq.user(obj);
+								break;
+							}
+							default: {
+								break;
+							}
+						}
+						Login.this.dispose();
+						sq.setVisible(true);
 					}
 						
 				} catch (Exception e1) {

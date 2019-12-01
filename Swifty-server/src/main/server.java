@@ -24,6 +24,7 @@ public class server extends Thread{
 	private ServerSocket serverSocket = null;
 	private Socket socket = null;
 	public static HashMap<String, Integer> Lobby = new HashMap<String,Integer>(); // PlayerID - ID_room
+	public static HashMap<Integer, ArrayList<Integer>> Room = new HashMap<Integer, ArrayList<Integer>>(); // ID_room - Number - IsLucky
 	public static HashMap<String, DataOutputStream> Player = new HashMap<String,DataOutputStream>(); // PlayerID - socket
 	public static HashMap<String, Integer> Point = new HashMap<String,Integer>(); // PlayerID - Match point
 	
@@ -51,15 +52,17 @@ public class server extends Thread{
 				data="";
 			
 				
-						
+				long mainTime = System.currentTimeMillis()/1000;		
 				while(true)
 				{
-					String temp = dis.readUTF();					
-					System.out.println(temp);
+					String temp = dis.readUTF();
+					System.out.println("-----------------------------");
+					System.out.println("Server receive:\n" + temp);
 					try {
 						JSONObject obj = new JSONObject(temp);						
 						data = Controller.Enroute(obj, a, dos);
 						dos.writeUTF(data);
+						
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

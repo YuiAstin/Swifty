@@ -120,7 +120,7 @@ public class Square3 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
-					BUS.sendNumber(String.valueOf(j));
+//					BUS.sendNumber(String.valueOf(j));
 				}
 				
 			});

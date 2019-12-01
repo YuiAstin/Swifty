@@ -20,8 +20,8 @@ public class database {
 	  static final String DB_URL = "jdbc:mysql://localhost/swifty?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 	   //  Database credentials
-	   static final String USER = "root";
-	   static final String PASS = "";
+	   static final String USER = "vtt";
+	   static final String PASS = "dtl";
 	   
 	  public void initConnection()
 	  {
@@ -319,10 +319,13 @@ public class database {
 			 System.out.println(resultSet.toString());
 			 
 			 while(resultSet.next())
-			 {				
+			 {
+				 String match_config = "easy";
 				 result ="{\n"
 						+ "\"Type\": \"Signin\",\n"				 		
 				 		+ "\"Errorcode\": \"Er0\",\n"
+				 		+ "\"Config ID\": \""+match_config+"\",\n"
+				 		+ "\"Room ID\": \"-1\",\n"
 				 		+ "\"player ID\": \""+resultSet.getString("player_id")+"\",\n"				 		
 				 		+ "\"Username\": \""+resultSet.getString("username")+"\",\n"
 				 		+ "\"Password\": \""+resultSet.getString("PASSWORD")+"\",\n"
@@ -330,13 +333,15 @@ public class database {
 		 				+ "\"Gender\": \""+resultSet.getString("gender")+"\",\n"
 				 		+ "\"Birthday\": \""+resultSet.getString("ngsinh")+"\"\n"
 				 		+ "}";
+				 // Generate ID player
+				 server.Lobby.put(resultSet.getString("player_id"), -1);
+				 server.Player.put(resultSet.getString("player_id"), dos);
+				 server.Point.put(resultSet.getString("player_id"), 0);
 			 }
 			 
-			 // Generate ID player
+
 			 
-			server.Lobby.put(resultSet.getString("player_id"), -1);
-			server.Player.put(resultSet.getString("player_id"), dos);
-			server.Point.put(resultSet.getString("player_id"), 0);
+			
     
 			 
 			 System.out.println(result);

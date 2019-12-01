@@ -51,7 +51,7 @@ public class SignUp extends JFrame {
 	private JTextField txtLastname;
 	private JPasswordField txtPassword;
 	private JPasswordField txtConPassword;
-	private JFrame loginFrame; 
+	private JFrame loginFrame;
 
 	/**
 	 * Launch the application.
@@ -251,7 +251,8 @@ public class SignUp extends JFrame {
 					}
 					else {
 						JSONObject obj = new JSONObject(respond);
-						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Sign up success", "Welcome",JOptionPane.INFORMATION_MESSAGE);
+						
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block

@@ -12,24 +12,19 @@ import main.*;
 
 public class BUS {
 
-	public static int sendNumber(String a) {
+	public static void sendNumber(DataOutputStream dos, String a) {
 		// TODO Auto-generated method stub
 		try {
 			String result ="{\n"
 				    +"\"Type\": \"MatchUpdate\",\n"
 					+"\"player ID\": "+Client.player.getInt("player ID")+",\n"
-				    +"\"fieldUpdate\": "+a+"\n"
+				    +"\"fieldUpdate\": "+a+",\n"
+				    +"\"Point\": "+1+"\n"
 				+"}";
-			DataOutputStream dos = new DataOutputStream(Client.socket.getOutputStream());
 			dos.writeUTF(result);
-			DataInputStream dis = new DataInputStream(Client.socket.getInputStream());
-			result = dis.readUTF();
-			JSONObject obj = new JSONObject(result);
-			return obj.getInt("fieldUpdate");
 		} catch (JSONException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return 0;
 		}
 		
 	}

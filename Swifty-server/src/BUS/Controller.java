@@ -29,7 +29,7 @@ public class Controller {
 				case "Quit": return cleanupRoom(obj); // Out room
 				case "Logout": return cleanupLobby(obj); // Logout
 				case "Create room": return createRoom(obj);
-				case "Join room": return joinRoom(obj); // Quick match -- Create new room if no empty room
+				case "Join room": return joinRoom(obj,a); // Quick match -- Create new room if no empty room
 				case "MatchUpdate": return UpdateMatch.R_updateMatch(obj, a);
 				case "StartGame": return StartGame(obj,a);
 			}
@@ -94,10 +94,10 @@ public class Controller {
 		return "\"Error code:\" \"Er0\"";
 	}
 
-	private static String joinRoom(JSONObject obj) throws JSONException {
+	private static String joinRoom(JSONObject obj, database a) throws JSONException, IOException {
 		// TODO Auto-generated method stub
-		int max_player = 3;
-		String id_room = obj.getString("player ID");
+		int max_player = 2;
+		String player_id = obj.getString("player ID");
 		HashMap<Integer,Integer> rooms = new HashMap<Integer,Integer>();
 		
 		for (Entry<String, Integer> room : server.Lobby.entrySet()) {
@@ -109,10 +109,31 @@ public class Controller {
 		for (Entry<Integer, Integer> room : rooms.entrySet()) {
 			int room_id =  room.getKey();
 			int number = room.getValue();
-			if (number < max_player) {
-				server.Lobby.put(id_room, room_id);
-				return "\"Error code:\" \"Er0\"";
-				}
+			if (room_id >-1 && number < max_player) {
+				
+				
+				String player1_id = "";
+				for (Entry<String, Integer> lobby : server.Lobby.entrySet()) { // Get player 1 ID
+			          if (room_id == lobby.getValue()) {
+			        	  player1_id = lobby.getKey();
+			          }
+		        }
+				
+				server.Lobby.put(player_id, room_id); // Put player 2 into room
+				
+				JSONObject obj1 = new JSONObject(a.get_aPlayerInfo(player1_id));
+				JSONObject obj2 = new JSONObject(a.get_aPlayerInfo(player_id));
+				String result ="{\n"
+					    +"\"Type\": \"JoinRoom\",\n"
+					    +"\"Errorcode\": \"Er0\",\n"
+						+"\"player1 Name\": "+obj1.getString("Username")+",\n"
+						+"\"player2 Name\": "+obj2.getString("Username")+",\n"
+						+"\"room ID\": "+room_id+"\n"
+					+"}";
+				
+				server.Player.get(player1_id).writeUTF(result); // Send info back to room master (player 1)
+				return result;
+			}
 		}
 		
 		return createRoom(obj);
@@ -120,19 +141,26 @@ public class Controller {
 
 	private static String createRoom(JSONObject obj) throws JSONException {
 		// TODO Auto-generated method stub
+		String result = "\"Error code:\" \"Er0\"";;
 
 		for (int i=1;i<=server.Lobby.size()+1;i++) {
 			if (server.Lobby.containsValue(i)) continue;
-			else {
+			else { // Put player int room
 				server.Lobby.put(obj.getString("player ID"), i);
-				if (!obj.getString("player2 ID").isEmpty()) {
+				result ="{\n"
+					    +"\"Type\": \"CreateRoom\",\n"
+					    +"\"Errorcode\": \"Er0\",\n"
+						+"\"room ID\": "+i+"\n"
+					+"}";
+				
+				if (obj.has("player2 ID") && !obj.getString("player2 ID").isEmpty()) { // This line is used for find room by id function
 					server.Lobby.put(obj.getString("player2 ID"), i);
 				}
 				
 				break;
 			}
 		}
-		return "\"Error code:\" \"Er0\"";
+		return result;
 	}
 
 }

@@ -6,7 +6,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import BUS.BUS;
+import main.Client;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -17,17 +21,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextField;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 
 public class Square10 extends JFrame {
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextField textField_3;
+	private JSONObject user = null;
+	private JButton button[];
+	private ArrayList<Integer> number;
 
 	/**
 	 * Launch the application.
@@ -36,7 +47,7 @@ public class Square10 extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Square10 frame = new Square10(null,null);
+					Square10 frame = new Square10(null,null,null);
 					frame.setVisible(true);
 					frame.setResizable(false);
 					frame.setLocationRelativeTo(null);
@@ -51,19 +62,52 @@ public class Square10 extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws JSONException 
 	 */
-	public Square10(DataInputStream dis, DataOutputStream dos) {
+	public Square10(DataInputStream dis, DataOutputStream dos, JSONObject user) throws JSONException {
 		getContentPane().setBackground(new Color(0, 0, 51));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1300, 750);
+		if (user != null) this.user = user;
+		
+		EditProfile prof = new EditProfile(dis, dos);
+		prof.setVisible(false);
+		
+		
 		
 		JLabel lblSwifty = new JLabel("SWIFTY");
 		lblSwifty.setForeground(SystemColor.textHighlight);
 		lblSwifty.setFont(new Font("OCR A Extended", Font.BOLD, 58));
 		
-		JButton btnUsername = new JButton("Username");
+		JButton btnUsername = new JButton(this.user == null ? "Username" : this.user.getString("Username"));
 		btnUsername.setFont(new Font("Arial", Font.BOLD, 17));
+		btnUsername.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					// Edit information
+//					setVisible(false);
+//					prof.mainFrame(Square10.this);
+//					prof.user(Square10.this.user);
+//					prof.loadProfile();
+//					prof.setVisible(true);
+					// shuffle array
+					StartGame(dis,dos);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		
+		JButton btnStart = new JButton("Start Game");
+        btnStart.setText("Start game");
+        btnStart.setBounds(250,80,250,80);
+        btnStart.setLocation(350,10);
+        btnStart.setVisible(true);
+        btnStart.setFont(new Font("Arial", Font.BOLD + Font.ITALIC, 24));
+        add(btnStart);
+        
 		JLabel lblFind = new JLabel("FIND");
 		lblFind.setForeground(SystemColor.textHighlight);
 		lblFind.setFont(new Font("Arial", Font.BOLD, 25));
@@ -105,11 +149,13 @@ public class Square10 extends JFrame {
 		lblRanking.setFont(new Font("Arial", Font.BOLD, 25));
 		
 		int SquareNum = 100; 
-		JButton button[] = new JButton[SquareNum];
+		this.button = new JButton[SquareNum];
+		this.number = new ArrayList<>();
+		
 		for (int i = 0; i<button.length; i++)
 		{
 			/* Title for button */
-			
+			this.number.add(i);
 			button[i] = new JButton("X");
 			final int j = i;
 			
@@ -120,12 +166,30 @@ public class Square10 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
-					BUS.sendNumber(String.valueOf(j));
+					BUS.sendNumber(dos, String.valueOf(Square10.this.number.get(j)));
+//					System.out.println(String.valueOf(Square10.this.number.get(j)));
 				}
 				
 			});
 			
 		}
+		
+		btnStart.addActionListener((ActionListener) new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					Matching(dis, dos);
+				} catch (JSONException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+//				System.out.println(String.valueOf(Square10.this.number.get(j)));
+			}
+			
+		});
+		
 		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -528,5 +592,91 @@ public class Square10 extends JFrame {
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		getContentPane().setLayout(groupLayout);
+	}
+	public void user(JSONObject user) {
+		this.user = user;
+	}
+	public void Matching(DataInputStream dis, DataOutputStream dos) throws JSONException, IOException {
+		String data ="{\n"
+			    +"\"Type\": \"Join room\",\n"
+				+"\"player ID\": \""+this.user.getString("player ID")+"\"\n"
+				+"}";
+		dos.writeUTF(data);
+	}
+	public void StartGame(DataInputStream dis, DataOutputStream dos) {
+		Collections.shuffle(this.number);
+		// Get match infor from server --todo later
+		for (int i = 0; i<this.button.length; i++) {
+			this.button[i].setText(this.number.get(i).toString());
+		}
+//		Thread sendMessage = new Thread(new Runnable()  
+//        { 
+//            @Override
+//            public void run() { 
+//                while (true) { 
+//  
+//                    // read the message to deliver. 
+//                    String msg = scn.nextLine(); 
+//                      
+//                    try { 
+//                        // write on the output stream 
+//                        dos.writeUTF(msg); 
+//                    } catch (IOException e) { 
+//                        e.printStackTrace(); 
+//                    } 
+//                } 
+//            } 
+//        }); 
+          
+        // readMessage thread 
+        Thread readMessage = new Thread(new Runnable()  
+        { 
+            @Override
+            public void run() { 
+  
+                while (true) { 
+                    try { 
+                        // read the message sent to this client 
+                        String msg = dis.readUTF();
+                        System.out.println(msg);
+                        JSONObject obj = new JSONObject(msg);
+                        switch (obj.getString("Type")) {
+	                        case "Player List": {
+	                        	
+	                        	break;
+	                        }
+	                        case "UpdateMatch": {
+	                        	int number = obj.getInt("NextNumber");
+	                        	int point = obj.getInt("Point");
+	                        	textField.setText(number+"");
+	                        	if (point>1) {
+	                        		textField.setForeground(SystemColor.RED);
+	                        	}
+	                        	else {
+	                        		textField.setForeground(SystemColor.BLACK);
+	                        	}
+	                        }
+	                        case "CreateRoom": {
+	                        	textField_1.setText(Square10.this.user.getString("Username"));
+	                        	break;
+	                        }
+	                        case "JoinRoom": {
+	                        	textField_1.setText(obj.getString("player1 Name"));
+	                        	textField_2.setText(obj.getString("player2 Name"));
+	                        	break;
+	                        }
+	                        default: {
+	                        	break;
+	                        }
+                        }
+                        System.out.println(msg); 
+                    } catch (Exception e) { 
+  
+                        e.printStackTrace(); 
+                    } 
+                } 
+            } 
+        });
+        readMessage.start();
 	}
 }

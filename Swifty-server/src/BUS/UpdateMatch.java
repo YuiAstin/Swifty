@@ -29,13 +29,15 @@ public class UpdateMatch {
 	{
 		String playerID= obj.getString("player ID");
 		int roomID = server.Lobby.get(playerID);
-		int nextNumber = obj.getInt("Number");
+		int nextNumber = obj.getInt("fieldUpdate");
 		String result = "{\n"				 		
 	 			+ "\"Errorcode\": \"Er0\",\n"// Er1 = cannot get setting from db
-	 			+ "\"NextNumber\": "+nextNumber+"\n"
+	 			+ "\"Type\": \"UpdateMatch\",\n"
+	 			+ "\"NextNumber\": "+nextNumber+",\n"
+	 			+ "\"Point\": "+(1+LuckNumber())+"\n"
 	 			+ "}";
 		
-		server.Point.replace(playerID, server.Point.get(playerID) + 1); // Update point
+		server.Point.replace(playerID, server.Point.get(playerID) + obj.getInt("Point")); // Update point
 		for (Entry<String, Integer> room : server.Lobby.entrySet()) {	// Update new number
 			if (room.getValue() == roomID) { // Player in room
 				server.Player.get(room.getKey()).writeUTF(result);
@@ -43,5 +45,9 @@ public class UpdateMatch {
 		}
 		
 		return "\"Errorcode\": \"Er0\"";
+	}
+	public static int LuckNumber() {
+		long tim = System.currentTimeMillis();
+		return tim%10==0? 1 : 0;
 	}
 }
