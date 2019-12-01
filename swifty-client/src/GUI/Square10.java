@@ -22,11 +22,14 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.Timer;
 import javax.swing.JTextField;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -36,9 +39,12 @@ public class Square10 extends JFrame {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextField textField_3;
+	private JButton btnStart;
 	private JSONObject user = null;
 	private JButton button[];
 	private ArrayList<Integer> number;
+	private Timer t;
+	
 
 	/**
 	 * Launch the application.
@@ -100,8 +106,8 @@ public class Square10 extends JFrame {
 			}
 		});
 		
-		JButton btnStart = new JButton("Start Game");
-        btnStart.setText("Start game");
+		btnStart = new JButton("Start Game");
+        btnStart.setText("Match");
         btnStart.setBounds(250,80,250,80);
         btnStart.setLocation(350,10);
         btnStart.setVisible(true);
@@ -148,6 +154,7 @@ public class Square10 extends JFrame {
 		lblRanking.setForeground(SystemColor.textHighlight);
 		lblRanking.setFont(new Font("Arial", Font.BOLD, 25));
 		
+		
 		int SquareNum = 100; 
 		this.button = new JButton[SquareNum];
 		this.number = new ArrayList<>();
@@ -180,7 +187,23 @@ public class Square10 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				try {
-					Matching(dis, dos);
+					String func = btnStart.getText();
+					switch (func) {
+						case "Match": {
+							btnStart.setText("Matching...");
+							btnStart.setEnabled(false);
+							Matching(dis, dos);
+							break;
+						}
+						case "Start Game": {
+							break;
+						}
+						default: {
+							JOptionPane.showMessageDialog(null, "Somthing went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
+							break;
+						}
+					}
+					
 				} catch (JSONException | IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -663,6 +686,32 @@ public class Square10 extends JFrame {
 	                        case "JoinRoom": {
 	                        	textField_1.setText(obj.getString("player1 Name"));
 	                        	textField_2.setText(obj.getString("player2 Name"));
+	                        	btnStart.setText("Start Game");
+	                        	btnStart.setEnabled(true);
+	                        	if (obj.getString("player1 Name").equals(user.getString("Username"))) {
+	                        		JOptionPane.showMessageDialog(null, "Enjoy the game", "Fighting!!!",JOptionPane.INFORMATION_MESSAGE);
+	                        	}
+	                        	else {
+	                        		btnStart.setVisible(false);
+	                        	}
+	                        	
+	                        	Square10.this.t = new Timer(1000, new ActionListener() {
+	                        		public void actionPerformed(ActionEvent e) {
+	                        			// Do the task here
+	                        			int battleTime = 210;
+	                        			String curTime = textField_3.getText();
+	                        			int timeSetInSeconds = curTime.isBlank() ? battleTime : Time2Seconds(curTime);
+	                        			
+	                        			String timeSet = TimerFormat(timeSetInSeconds-1);
+	                        			textField_3.setText(timeSet);
+	                        			if((timeSetInSeconds-1) == 0){// Endgame
+	                        				Square10.this.t.stop();
+                        			    }
+                        		    }
+                        		});
+                        		t.start();
+	                        	
+	                        	String battleTime = TimerFormat(210);
 	                        	break;
 	                        }
 	                        default: {
@@ -678,5 +727,17 @@ public class Square10 extends JFrame {
             } 
         });
         readMessage.start();
+	}
+	public String TimerFormat(int seconds) {
+		LocalTime timeOfDay = LocalTime.ofSecondOfDay(seconds);
+		String time = timeOfDay.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+		System.out.println(time);
+		String time_formated = time.substring(3);
+		return time_formated;
+	}
+	public int Time2Seconds(String time) {
+		int minutes = Integer.parseInt(time.substring(0,2));
+		int seconds = Integer.parseInt(time.substring(3,time.length()));
+		return (minutes*60 + seconds);
 	}
 }
