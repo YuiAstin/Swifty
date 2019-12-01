@@ -17,6 +17,7 @@ import org.json.JSONStringer;
 import org.json.JSONWriter;
 
 import BUS.Controller;
+import BUS.Encryption;
 import DAL.database;
 
 public class server extends Thread{
@@ -56,11 +57,13 @@ public class server extends Thread{
 				while(true)
 				{
 					String temp = dis.readUTF();
+					temp = Encryption.Decrypt(temp);
 					System.out.println("-----------------------------");
 					System.out.println("Server receive:\n" + temp);
 					try {
 						JSONObject obj = new JSONObject(temp);						
 						data = Controller.Enroute(obj, a, dos);
+						data = Encryption.Encrypt(data);
 						dos.writeUTF(data);
 						
 					} catch (JSONException e) {
@@ -101,8 +104,6 @@ public class server extends Thread{
 //        }
 		database a = new database();
 		a.initConnection();
-//		server b = new server();
-//		b.start_server();
 
 		ServerSocket serverSocket = null;
         Socket socket = null;
@@ -122,28 +123,7 @@ public class server extends Thread{
             }
             // new thread for a client
             new server(socket).start();
-        }
-		
-		
-
-		//Test Register func
-//		JSONObject obj=null;
-//		try {
-//			obj = new JSONObject("{\n"
-//					+ "\"Type\": New,\n"				 		
-//			 		+ "\"Errorcode\": \"Er0\",\n"
-//			 		+ "\"player ID\": \"new\",\n"				 		
-//			 		+ "\"Username\": \"yon\",\n"
-//			 		+ "\"Password\": \"san\",\n"
-//			 		+ "\"FnameLname\": \"san\",\n"
-//			 		+ "\"Gender\": 0,\n"
-//			 		+ "\"Birthday\": \"1999/1/1\"\n"
-//			 		+ "}");
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		a.set_registerPlayer(obj);
+        }			
 
 	}
 }
