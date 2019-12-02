@@ -26,7 +26,7 @@ public class Controller {
 			{
 //				case "Signin": return a.get_aPlayerInfo(obj.getString("username"));
 				case "Signin": return a.signin(obj.getString("Username"), obj.getString("Password"), dos);
-				case "Signup": return a.set_registerPlayer(obj);
+				case "Signup": return SignUp(obj,a);
 				case "EditProfile": return a.set_aPlayerInfo(obj);
 				case "Win": return a.recordMatch(obj.getInt("player ID"));
 				case "Ranking Request": return a.get_rankingArray();
@@ -46,6 +46,28 @@ public class Controller {
 			e.printStackTrace();
 			return "Er4"; 
 		}
+	}
+
+//	private static String SignIn(JSONObject obj, database a, DataOutputStream dos) throws JSONException {
+//		// TODO Auto-generated method stub
+//		String
+//		String result = 
+//		
+//		return result; 
+//	}
+
+	private static String SignUp(JSONObject obj, database a) throws JSONException {
+		// TODO Auto-generated method stub
+		String checker = a.check_Username(obj.getString("Username"));
+		JSONObject js = new JSONObject(checker);
+		if (js.has("Total") && js.getInt("Total") < 1) {
+			return a.set_registerPlayer(obj);
+		}
+		// Username existed
+		return "{\n"
+				+ "\"Type\": \"SignUp\",\n"
+		 		+ "\"Errorcode\": \"Er4\"\n"
+		 		+ "}";
 	}
 
 	private static String onlineList(database a) throws JSONException {

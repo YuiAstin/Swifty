@@ -231,7 +231,7 @@ public class Square10 extends JFrame {
 		for (int i = 0; i<button.length; i++)
 		{
 			/* Title for button */
-			this.number.add(i);
+			this.number.add(i+1);
 			button[i] = new JButton("X");
 			final int j = i;
 			

@@ -141,25 +141,28 @@ public class Login extends JFrame {
 					System.out.println("Respond: " + respond);
 					if (respond.equals("Er1")) {
 						JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error",JOptionPane.ERROR_MESSAGE);
-					}
-					else { // Login success
+					} else {
 						JSONObject obj = new JSONObject(respond);
-						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
-						
-						Square10 sq = null;
-						switch (obj.getString("Config ID"))
-						{
-							case "easy": {
-								sq = new Square10(dis, dos, obj);
-								sq.user(obj);
-								break;
+						if (obj.getString("Errorcode").equals("Er2")) { // Account is logining 
+							JOptionPane.showMessageDialog(null, "Account is logining!", "Warning!",JOptionPane.WARNING_MESSAGE);
+						} else { // Login success
+							JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+							
+							Square10 sq = null;
+							switch (obj.getString("Config ID"))
+							{
+								case "easy": {
+									sq = new Square10(dis, dos, obj);
+									sq.user(obj);
+									break;
+								}
+								default: {
+									break;
+								}
 							}
-							default: {
-								break;
-							}
+							Login.this.dispose();
+							sq.setVisible(true);
 						}
-						Login.this.dispose();
-						sq.setVisible(true);
 					}
 						
 				} catch (Exception e1) {
