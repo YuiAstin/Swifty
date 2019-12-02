@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import BUS.BUS;
 import BUS.Encryption;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -50,6 +51,7 @@ public class Square3 extends JFrame {
 	private JList listRanking;
 	private JButton btnStart;
 	private JButton btnUsername;
+	private Color defaultBtnColor;
 	private EditProfile prof;
 	private JSONObject user = null;
 	private JSONObject match = null;
@@ -136,12 +138,16 @@ public class Square3 extends JFrame {
         btnStart.setFont(new Font("Arial", Font.BOLD + Font.ITALIC, 24));
         add(btnStart);
 		
+        this.defaultBtnColor = btnStart.getBackground();
+        
 		JLabel lblFind = new JLabel("FIND");
 		lblFind.setForeground(SystemColor.textHighlight);
 		lblFind.setFont(new Font("Arial", Font.BOLD, 25));
 		
 		textField = new JTextField();
 		textField.setColumns(10);
+		textField.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		textField.setHorizontalAlignment(JTextField.CENTER);
 		textField.setEnabled(false);
 		textField.setForeground(SystemColor.BLACK);
 		
@@ -155,20 +161,28 @@ public class Square3 extends JFrame {
 		
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
+		textField_1.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		textField_1.setHorizontalAlignment(JTextField.CENTER);
 		textField_1.setEnabled(false);
 		textField_1.setForeground(SystemColor.BLACK);
 		
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
+		textField_2.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		textField_2.setHorizontalAlignment(JTextField.CENTER);
 		textField_2.setEnabled(false);
 		textField_2.setForeground(SystemColor.BLACK);
 		
 		JLabel lblTime = new JLabel("TIME:");
 		lblTime.setForeground(SystemColor.textHighlight);
 		lblTime.setFont(new Font("Arial", Font.BOLD, 25));
+		lblTime.setEnabled(false);
 		
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
+		textField_3.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		textField_3.setHorizontalAlignment(JTextField.CENTER);
+		textField_3.setEnabled(false);
 		
 		listPlayer = new JList();
 		listRanking = new JList();
@@ -433,7 +447,7 @@ public class Square3 extends JFrame {
 		BUS.get_playerList(dos);
 		BUS.get_rankingList(dos);
 		BUS.get_onlineList(dos);
-		Square3.this.game_status = new Timer(60000, new ActionListener() {	
+		Square3.this.game_status = new Timer(5000, new ActionListener() {	
     		public void actionPerformed(ActionEvent e) {	
     			// Do the task here	
     			BUS.get_playerList(dos);	
@@ -495,6 +509,8 @@ public class Square3 extends JFrame {
                     			for (int i=0;i<Square3.this.button.length;i++) {
                     				if (Integer.parseInt(Square3.this.button[i].getText()) == FoundNumber) {
                     					Square3.this.button[i].setEnabled(false);
+                    					Square3.this.button[i].setBackground(new Color(0, 0, 51));
+                    					Square3.this.button[i].setBackground(new Color(0, 0, 51));
                     				}
                     			}
                     			Square3.this.remainNumber.remove(new Integer(FoundNumber));
@@ -586,6 +602,8 @@ public class Square3 extends JFrame {
 	                        	for (int i=0;i<Square3.this.button.length;i++) {
 	                        		Square3.this.button[i].setText("X");
 	                        		Square3.this.button[i].setEnabled(true);
+	                        		Square3.this.button[i].setBackground(Square3.this.defaultBtnColor);
+	                        		Square3.this.button[i].setForeground(SystemColor.BLACK);
 	                        	}
 
 	                        	break;
@@ -618,6 +636,8 @@ public class Square3 extends JFrame {
 		for (int i = 0; i<this.button.length; i++) {
 			this.button[i].setText(this.number.get(i).toString());
 			this.button[i].setEnabled(true);
+			this.button[i].setBackground(Square3.this.defaultBtnColor);
+    		this.button[i].setForeground(SystemColor.BLACK);
 		}
 //		Thread sendMessage = new Thread(new Runnable()  
 //        { 
