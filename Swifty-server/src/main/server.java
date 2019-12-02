@@ -83,6 +83,35 @@ public class server extends Thread{
 						playerID = player.getKey();
 					}
 				}
+				
+				// Other player get win
+				int roomID = server.Lobby.get(playerID);
+				if (roomID > -1) {
+					database a2 = new database();
+					a2.initConnection();
+					for (Entry<String, Integer> lobby : server.Lobby.entrySet()) {
+						if (lobby.getValue() == roomID) {
+							if (!lobby.getKey().equals(playerID)) { // Other player
+								Lobby.replace(lobby.getKey(), -1);
+								a2.recordMatch(Integer.parseInt(lobby.getKey()));
+								String mess ="{\n"
+									    +"\"Type\": \"EndGame\",\n"
+									    +"\"Errorcode\": \"Er0\",\n"
+									    +"\"Result\": \"Win\",\n"
+										+"\"player ID\": \""+lobby.getKey()+"\"\n" // Win player
+										+"}";
+								try {
+									Player.get(lobby.getKey()).writeUTF(mess);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				}
+				
+				
 				Lobby.remove(playerID);
 				Player.remove(playerID);
 				Point.remove(playerID);

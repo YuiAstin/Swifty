@@ -28,7 +28,7 @@ public class BUS {
 				+"}";
 			dos.writeUTF(result);
 			if (Integer.parseInt(Remain) < 1) { //Endgame
-				sendEndGame(dos,id);
+				sendEndGame(dos,id,null);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -37,10 +37,12 @@ public class BUS {
 		
 	}
 	
-	public static void sendEndGame(DataOutputStream dos, String player_id) throws IOException {
+	public static void sendEndGame(DataOutputStream dos, String player_id, String reason) throws IOException {
+		reason = reason==null ? "EndGame" : reason;
 		String result ="{\n"
 			    +"\"Type\": \"EndGame\",\n"
-				+"\"player ID\": \""+player_id+"\"\n"
+				+"\"player ID\": \""+player_id+"\",\n"
+				+"\"reason\": \""+reason+"\"\n"
 				+"}";
 		dos.writeUTF(result);
 	}

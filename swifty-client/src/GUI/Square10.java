@@ -106,7 +106,7 @@ public class Square10 extends JFrame {
 					String func = btnUsername.getText();
 					switch (func) {
 						case "Quit": {
-							BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"");
+							BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"","Quit");
 							break;
 						}
 						default: { //Edit profile
@@ -823,7 +823,7 @@ public class Square10 extends JFrame {
 	                        			if((timeSetInSeconds-1) == 0){// Endgame
 	                        				textField_3.setText(null);
 	                        				try {
-												BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"");
+												BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"",null);
 											} catch (IOException | JSONException e1) {
 												// TODO Auto-generated catch block
 												e1.printStackTrace();

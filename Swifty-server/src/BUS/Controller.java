@@ -75,6 +75,8 @@ public class Controller {
 		int point = -1;
 		String matchResult = "Win";
 		
+		if (obj.getString("reason").equals("Quit")) server.Point.replace(PlayerID,-9999);
+		
 		for (Entry<String, Integer> lobby : server.Lobby.entrySet()) {
 			if (lobby.getValue() == roomID) {
 				if (!lobby.getKey().equals(PlayerID)) Player2ID = lobby.getKey();
