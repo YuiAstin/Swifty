@@ -56,7 +56,6 @@ public class Square10 extends JFrame {
 	private ArrayList<String> onlineList;
 	private ArrayList<String> rankingList;
 	private Timer t;
-	private Timer game_status;
 	
 	
 
@@ -232,7 +231,7 @@ public class Square10 extends JFrame {
 		for (int i = 0; i<button.length; i++)
 		{
 			/* Title for button */
-			this.number.add(i+1);
+			this.number.add(i);
 			button[i] = new JButton("X");
 			final int j = i;
 			
@@ -249,9 +248,9 @@ public class Square10 extends JFrame {
 						int findVal = Square10.this.match.getInt("NextNumber");
 						String btnVal = String.valueOf(Square10.this.number.get(j));
 						if (findVal == Integer.parseInt(btnVal)) {
-							Square10.this.remainNumber.remove(new Integer(btnVal));
 							Collections.shuffle(Square10.this.remainNumber);
 							int nextNum = Square10.this.remainNumber.get(0);
+							Square10.this.remainNumber.remove(0);
 							int point = 1;
 							JSONArray a = Square10.this.match.getJSONArray("SpedupNum");
 							for (int k=0;k<a.length();k++) {
@@ -729,15 +728,6 @@ public class Square10 extends JFrame {
 		BUS.get_playerList(dos);
 		BUS.get_rankingList(dos);
 		BUS.get_onlineList(dos);
-		Square10.this.game_status = new Timer(60000, new ActionListener() {
-    		public void actionPerformed(ActionEvent e) {
-    			// Do the task here
-    			BUS.get_playerList(dos);
-    			BUS.get_rankingList(dos);
-    			BUS.get_onlineList(dos);
-		    }
-		});
-		Square10.this.game_status.start();
 	}
 	private Thread clientListener(DataInputStream dis, DataOutputStream dos) {
 		// readMessage thread 
@@ -792,8 +782,6 @@ public class Square10 extends JFrame {
                     					Square10.this.button[i].setEnabled(false);
                     				}
                     			}
-                    			Square10.this.remainNumber.remove(new Integer(FoundNumber));
-                    			
 	                        	int number = obj.getInt("NextNumber");
 	                        	int time = obj.getInt("Time");
 	                        	textField_3.setText(TimerFormat(time));
@@ -827,12 +815,6 @@ public class Square10 extends JFrame {
 	                        		public void actionPerformed(ActionEvent e) {
 	                        			// Do the task here
 	                        			int battleTime = 210;
-										try {
-											battleTime = Square10.this.match.getInt("Time");
-										} catch (JSONException e2) {
-											// TODO Auto-generated catch block
-											e2.printStackTrace();
-										}
 	                        			String curTime = textField_3.getText();
 	                        			int timeSetInSeconds = curTime.isBlank() ? battleTime : Time2Seconds(curTime);
 	                        			

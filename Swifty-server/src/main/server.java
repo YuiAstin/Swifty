@@ -59,13 +59,13 @@ public class server extends Thread{
 				while(true)
 				{
 					String temp = dis.readUTF();
-//					temp = Encryption.Decrypt(temp);
+					temp = Encryption.Decrypt(temp);
 					System.out.println("-----------------------------");
 					System.out.println("Server receive:\n" + temp);
 					try {
 						JSONObject obj = new JSONObject(temp);						
 						data = Controller.Enroute(obj, a, dos);
-//						data = Encryption.Encrypt(data);
+						data = Encryption.Encrypt(data);
 						dos.writeUTF(data);
 						
 					} catch (JSONException e) {

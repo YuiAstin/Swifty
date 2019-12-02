@@ -246,15 +246,13 @@ public class SignUp extends JFrame {
 					dos.writeUTF(command);
 					String respond = dis.readUTF();
 					System.out.println("Respond: " + respond);
-					JSONObject obj = new JSONObject(respond);
-					if (obj.getString("Errorcode").equals("Er0")) {
+					if (respond.equals("Er1")) {
+						JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
+					}
+					else {
+						JSONObject obj = new JSONObject(respond);
 						JOptionPane.showMessageDialog(null, "Sign up success", "Welcome",JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						if (obj.getString("Errorcode").equals("Er4")) {
-							JOptionPane.showMessageDialog(null, "Username existed!", "Error",JOptionPane.ERROR_MESSAGE);
-						} else {
-							JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
-						}
+						
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block

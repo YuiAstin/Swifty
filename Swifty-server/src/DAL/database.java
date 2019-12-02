@@ -20,8 +20,8 @@ public class database {
 	  static final String DB_URL = "jdbc:mysql://localhost/swifty?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 	   //  Database credentials
-	   static final String USER = "vtt";
-	   static final String PASS = "dtl";
+	   static final String USER = "root";
+	   static final String PASS = "";
 	   
 	  public void initConnection()
 	  {
@@ -88,7 +88,7 @@ public class database {
 //					return "\"Error code:\" \"Er3\""; //Unable to insert new player into record table
 				preparedStatement.executeUpdate();
 				String result ="{\n"
-						+ "\"Type\": \"SignUp\",\n"				 		
+						+ "\"Type\": \"Signin\",\n"				 		
 				 		+ "\"Errorcode\": \"Er0\",\n"
 				 		+ "\"player ID\": \""+resultSet.getString("player_id")+"\",\n"				 		
 				 		+ "\"Username\": \""+resultSet.getString("username")+"\",\n"
@@ -115,7 +115,7 @@ public class database {
 		} catch (SQLException | JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return "\"Error code\": \"Er2\""; // Er2 = Unknown bug
+			return "\"Error code:\" \"Er2\""; // Er2 = Unknown bug
 		}
 	  }
 	  
@@ -337,17 +337,17 @@ public class database {
 		 				+ "\"Gender\": \""+resultSet.getString("gender")+"\",\n"
 				 		+ "\"Birthday\": \""+resultSet.getString("ngsinh")+"\"\n"
 				 		+ "}";
-				 // Check isLogin
-				 if (server.Lobby.containsKey(resultSet.getString("player_id"))) {
-					 result = result.replace("Er0", "Er2"); //IsLogining
-				 }
-				 else {
-					// Save ID player
-					 server.Lobby.put(resultSet.getString("player_id"), -1);
-					 server.Player.put(resultSet.getString("player_id"), dos);
-					 server.Point.put(resultSet.getString("player_id"), 0);
-				 } 
+				 // Generate ID player
+				 server.Lobby.put(resultSet.getString("player_id"), -1);
+				 server.Player.put(resultSet.getString("player_id"), dos);
+				 server.Point.put(resultSet.getString("player_id"), 0);
 			 }
+			 
+
+			 
+			
+    
+			 
 			 System.out.println(result);
 			 return result;
 		} catch (SQLException e) {
@@ -356,37 +356,6 @@ public class database {
 			return result;
 		}
 	}
-	public String check_Username(String username)
-	  {		  
-		  String result = "\"Error code\": \"Er2\""; // Unknow error
-		  try {		 
-			 String sql = "SELECT COUNT(*) AS Total FROM player WHERE username = ?";
-			 preparedStatement = connect.prepareStatement(sql);
-			 preparedStatement.setString(1, username);
-			 if(!preparedStatement.execute())
-			 {
-				 System.out.println("broke");
-			 }
-			 resultSet = preparedStatement.executeQuery();	
-			 resultSet = preparedStatement.getResultSet();
-			 
-			 while(resultSet.next())
-			 {				
-				 result ="{\n"
-						+ "\"Type\": \"Check Username\",\n"
-				 		+ "\"Errorcode\": \"Er0\",\n"
-				 		+ "\"Total\": \""+resultSet.getInt("Total")+"\"\n"
-				 		+ "}";
-			 }
-			 System.out.println(result);
-			 return result;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return result;
-		} 
-		  
-	  }
 
 	
 }

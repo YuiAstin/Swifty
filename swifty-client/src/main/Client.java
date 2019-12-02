@@ -11,7 +11,6 @@ public class Client {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		// TODO Auto-generated method stub
-//		Socket socket = new Socket("113.173.218.108", 5000);
 		Socket socket = new Socket("localhost", 5000);
 		DataInputStream dis = new DataInputStream(socket.getInputStream());
 		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
