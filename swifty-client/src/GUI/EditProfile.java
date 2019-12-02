@@ -21,6 +21,9 @@ import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
+
+import BUS.Encryption;
+
 import com.jgoodies.forms.layout.FormSpecs;
 
 import javax.swing.BorderFactory;
@@ -279,6 +282,7 @@ public class EditProfile extends JFrame {
 			 				+ "\"Gender\": \""+_gender+"\",\n"
 					 		+ "\"Birthday\": \""+_birthday+"\"\n"
 					 		+ "}";
+					command = Encryption.Encrypt(command);
 					dos.writeUTF(command);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block

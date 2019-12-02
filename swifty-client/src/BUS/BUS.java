@@ -27,6 +27,7 @@ public class BUS {
 				    +"\"NextNumber\": "+nextNum+",\n"
 				    +"\"RemainNumber\": "+Remain+"\n"
 				+"}";
+			result = Encryption.Encrypt(result);
 			dos.writeUTF(result);
 			if (Integer.parseInt(Remain) < 1) { //Endgame
 				sendEndGame(dos,id,null);
@@ -45,6 +46,7 @@ public class BUS {
 				+"\"player ID\": \""+player_id+"\",\n"
 				+"\"reason\": \""+reason+"\"\n"
 				+"}";
+		result = Encryption.Encrypt(result);
 		dos.writeUTF(result);
 	}
 	
@@ -53,6 +55,7 @@ public class BUS {
 		
 		try {
 			String result ="{\"Type\": \"Ranking Request\"}";
+			result = Encryption.Encrypt(result);
 			dos.writeUTF(result);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -64,6 +67,7 @@ public class BUS {
 	{
 		try {
 			String result ="{\"Type\": \"Player List Request\"}";
+			result = Encryption.Encrypt(result);
 			dos.writeUTF(result);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -78,6 +82,7 @@ public class BUS {
 				    +"\"Type\": \""+type+"\",\n"
 					+"\"player ID\": \""+playerID+"\"\n"
 					+"}";
+			data = Encryption.Encrypt(data);
 			dos.writeUTF(data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -109,6 +114,7 @@ public class BUS {
 		// TODO Auto-generated method stub
 		try {
 			String result ="{\"Type\": \"Online List Request\"}";
+			result = Encryption.Encrypt(result);
 			dos.writeUTF(result);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

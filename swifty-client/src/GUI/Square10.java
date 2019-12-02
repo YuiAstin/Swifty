@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import BUS.BUS;
+import BUS.Encryption;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
@@ -731,6 +732,7 @@ public class Square10 extends JFrame {
                     try { 
                         // read the message sent to this client 
                         String msg = dis.readUTF();
+                        msg = Encryption.Decrypt(msg);
                         JSONObject obj = new JSONObject(msg);
                         System.out.println(msg); 
                         if (!obj.has("Type")) continue;

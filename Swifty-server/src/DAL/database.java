@@ -20,8 +20,8 @@ public class database {
 	  static final String DB_URL = "jdbc:mysql://localhost/swifty?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 	   //  Database credentials
-	   static final String USER = "root";
-	   static final String PASS = "";
+	   static final String USER = "vtt";
+	   static final String PASS = "dtl";
 	   
 	  public void initConnection()
 	  {
