@@ -3,62 +3,70 @@ package BUS;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.KeyStore.SecretKeyEntry;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Base64;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
-	static public String Encrypt(String data)
-	{
-		try {
-			
-			KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-			keygen.initialize(2048);
-			KeyPair pair = keygen.generateKeyPair();
-			PublicKey pubKey = pair.getPublic();
-			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-			byte[] input = data.getBytes();
-			cipher.update(input);
-			byte[] cipherText = cipher.doFinal(); 
-			return cipherText.toString();
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
-		} catch (BadPaddingException | IllegalBlockSizeException e) {
-			e.printStackTrace();
-			return "";
-		}
-	}
-	static public String Decrypt(String data)
-	{
-		try {			
-			KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-			keygen.initialize(2048);
-			KeyPair pair = keygen.generateKeyPair();
-			PublicKey pubKey = pair.getPublic();
-			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-			cipher.init(Cipher.DECRYPT_MODE, pair.getPrivate());
-			byte[] dataBytes = data.getBytes();
-			byte[] decipheredText = cipher.doFinal(dataBytes);
-			return decipheredText.toString();
-
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
-		} catch (BadPaddingException | IllegalBlockSizeException e) {
-			e.printStackTrace();
-			return "";
-		}
-		
-	}
-	public static void StoringIntoKeyStore()
+	public static SecretKeySpec secretKey;
+    public static byte[] key;
+ 
+    public static void setKey(String myKey) 
+    {
+        MessageDigest sha = null;
+        try {
+            key = myKey.getBytes("UTF-8");
+            sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16); 
+            secretKey = new SecretKeySpec(key, "AES");
+        } 
+        catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } 
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+ 
+    public static String Encrypt(String strToEncrypt) 
+    {
+        try
+        {
+            setKey("pasuwaado");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+ 
+    public static String Decrypt(String strToDecrypt) 
+    {
+        try
+        {
+            setKey("pasuwaado");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+    public static void StoringIntoKeyStore()
 	{		   
 		      //Creating the KeyStore object
 		      KeyStore keyStore;
