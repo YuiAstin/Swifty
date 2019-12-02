@@ -8,6 +8,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import BUS.Miscellaneous;
 import main.server;
 public class database {
 	
@@ -326,7 +327,7 @@ public class database {
 			 
 			 while(resultSet.next())
 			 {
-				 String match_config = "easy";
+				 String match_config = Miscellaneous.updateDiff();
 				 result ="{\n"
 						+ "\"Type\": \"Signin\",\n"				 		
 				 		+ "\"Errorcode\": \"Er0\",\n"
