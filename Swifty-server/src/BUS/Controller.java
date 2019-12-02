@@ -91,7 +91,7 @@ public class Controller {
 				}
 			}
 		}
-		if (matchResult.equals("Win")) a.recordMatch(obj.getInt(Winner));
+		if (matchResult.equals("Win")) a.recordMatch(Integer.parseInt(Winner));
 		String result ="{\n"
 			    +"\"Type\": \"EndGame\",\n"
 			    +"\"Errorcode\": \"Er0\",\n"

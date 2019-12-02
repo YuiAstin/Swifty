@@ -195,7 +195,6 @@ public class EditProfile extends JFrame {
 		JButton btnClearFields = new JButton("Clear");
 		btnClearFields.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtUser.setText(null);
 				txtPassword.setText(null);
 				txtConPassword.setText(null);
 				txtFirstname.setText(null);

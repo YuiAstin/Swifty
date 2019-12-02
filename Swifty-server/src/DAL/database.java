@@ -40,7 +40,7 @@ public class database {
 	  	  	  
 	  public String recordMatch(int id)
 	  {
-		  String sql = " UPDATE `winrecord` SET `matchwon`= (SELECT `matchwon` FROM `winrecord` WHERE `player_id` = ?)+1 WHERE `player_id` = ?";
+		  String sql = " UPDATE `winrecord` SET `matchwon`= (SELECT `matchwon` FROM ( SELECT `matchwon` FROM `winrecord` where `player_id` = ?) as t)+1 WHERE `player_id` = ?";
 		  try {
 			preparedStatement = connect.prepareStatement(sql);
 			preparedStatement.setInt(1, id);

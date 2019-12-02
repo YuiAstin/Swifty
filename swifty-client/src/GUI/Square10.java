@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import BUS.BUS;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
@@ -27,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.awt.Color;
+import java.awt.Component;
+
 import javax.swing.JButton;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.Timer;
@@ -39,6 +42,8 @@ public class Square10 extends JFrame {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextField textField_3;
+	private JList listPlayer;
+	private JList listRanking;
 	private JButton btnStart;
 	private JButton btnUsername;
 	private EditProfile prof;
@@ -165,9 +170,50 @@ public class Square10 extends JFrame {
 		textField_3.setColumns(10);
 		textField_3.setEnabled(false);
 		
-		JList listPlayer = new JList();
 		
-		JList listRanking = new JList();
+		listPlayer = new JList();
+		listRanking = new JList();
+		
+		
+		listPlayer.setCellRenderer(new DefaultListCellRenderer() {
+
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index,
+                      boolean isSelected, boolean cellHasFocus) {
+                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                 
+                 if (Square10.this.playerList == null || Square10.this.playerList.size() < 1) return c;
+                 String nextUser = value.toString();
+                 setText(nextUser);
+                 if (isSelected) setBackground(getBackground().darker());
+                 if (Square10.this.onlineList == null || Square10.this.onlineList.size() < 1) return c;
+                 if (Square10.this.onlineList.contains(nextUser)) setBackground(Color.GREEN);
+                 else setBackground(Color.WHITE);
+                 return c;
+            }
+
+       });
+		listRanking.setCellRenderer(new DefaultListCellRenderer() {
+
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index,
+                      boolean isSelected, boolean cellHasFocus) {
+                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                 setBackground(Color.WHITE);
+                 if (Square10.this.rankingList == null || Square10.this.rankingList.size() < 1) return c;
+                 String nextUser = value.toString();
+                 setText(nextUser);
+                 try {
+					if (nextUser.equals(Square10.this.user.getString("Username"))) setBackground(Color.YELLOW);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                 if (isSelected) setBackground(getBackground().darker());
+                 return c;
+            }
+
+       });
 		
 		JLabel lblPlayerList = new JLabel("PLAYER LIST");
 		lblPlayerList.setForeground(SystemColor.textHighlight);
@@ -266,9 +312,12 @@ public class Square10 extends JFrame {
 			}
 			
 		});
-		initInfor(dis,dos);
-		Thread handleRespond = clientListener(dis,dos);
-		handleRespond.start();
+		if (!(this.user == null)) {
+			initInfor(dis,dos);
+			Thread handleRespond = clientListener(dis,dos);
+			handleRespond.start();	
+		}
+		
 		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -697,14 +746,19 @@ public class Square10 extends JFrame {
                         switch (obj.getString("Type")) {
 	                        case "Player List": {
 	                			Square10.this.playerList = json2Array(obj.getJSONArray("Player"));
+	                			Square10.this.listPlayer.setListData(Square10.this.playerList.toArray());
+	                			Square10.this.listPlayer.updateUI();
 	                        	break;
 	                        }
 							case "Ranking List": {
 								Square10.this.rankingList = json2Array(obj.getJSONArray("Player"));
+								Square10.this.listRanking.setListData(Square10.this.rankingList.toArray());
+								Square10.this.listRanking.updateUI();
 								break;
 							}
 							case "Online List": {
 								Square10.this.onlineList = json2Array(obj.getJSONArray("Player"));
+								Square10.this.listPlayer.updateUI();
 								break;
 							}
 							case "EditProfile": {
@@ -846,7 +900,7 @@ public class Square10 extends JFrame {
 		btnStart.setVisible(true);
 		
 		Collections.shuffle(this.number);
-		this.remainNumber = this.number;
+		this.remainNumber = new ArrayList<Integer>(this.number);
 		// Get match infor from server --todo later
 		for (int i = 0; i<this.button.length; i++) {
 			this.button[i].setText(this.number.get(i).toString());
