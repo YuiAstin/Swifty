@@ -275,6 +275,7 @@ public class database {
 				 		+ "\"Status\": \"Success\",\n"
 				 		+ "\"Errorcode\": \"Er0\",\n"
 				 		+ "\"Type\": \"StartGame\",\n"
+				 		+ "\"configTime\": "+resultSet.getString("time")+",\n"
 				 		+ "\"Time\": "+resultSet.getString("time")+",\n"
 				 		+ "\"fieldSize\": ["+resultSet.getString("size_x")+","+resultSet.getString("size_y")+"],\n"
 				 		+ BUS.Miscellaneous.randomBonus(Integer.parseInt(resultSet.getString("size_x"))*Integer.parseInt(resultSet.getString("size_y")),1)+",\n";

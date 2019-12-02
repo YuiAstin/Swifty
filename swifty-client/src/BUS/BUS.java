@@ -14,13 +14,14 @@ import main.*;
 
 public class BUS {
 
-	public static void sendNumber(DataOutputStream dos, String a, String nextNum, String Remain, String id, int point,long timeStart) {
+	public static void sendNumber(DataOutputStream dos, String a, String nextNum, String Remain, String id, int point,long timeStart, int configTime) {
 		// TODO Auto-generated method stub
 		try {
 			String result ="{\n"
 				    +"\"Type\": \"MatchUpdate\",\n"
 					+"\"player ID\": \""+id+"\",\n"
 					+"\"TimeStart\": "+timeStart+",\n"
+					+"\"Time\": "+configTime+",\n"
 				    +"\"fieldUpdate\": "+a+",\n"
 				    +"\"Point\": "+point+",\n"
 				    +"\"NextNumber\": "+nextNum+",\n"
@@ -64,6 +65,20 @@ public class BUS {
 		try {
 			String result ="{\"Type\": \"Player List Request\"}";
 			dos.writeUTF(result);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void sendSimpleRequest(DataOutputStream dos, String type, String playerID)
+	{
+		try {
+			String data ="{\n"
+				    +"\"Type\": \""+type+"\",\n"
+					+"\"player ID\": \""+playerID+"\"\n"
+					+"}";
+			dos.writeUTF(data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

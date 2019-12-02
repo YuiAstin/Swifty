@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
+import BUS.Encryption;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -136,8 +138,12 @@ public class Login extends JFrame {
 					 		+ "\"Username\": \""+userName+"\",\n"
 					 		+ "\"Password\": \""+password+"\",\n"
 					 		+ "}";
+//					command = Encryption.Encrypt(command); // Encrypt
 					dos.writeUTF(command);
+					
 					String respond = dis.readUTF();
+//					respond = Encryption.Decrypt(respond); // Decrypt
+					
 					System.out.println("Respond: " + respond);
 					if (respond.equals("Er1")) {
 						JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error",JOptionPane.ERROR_MESSAGE);

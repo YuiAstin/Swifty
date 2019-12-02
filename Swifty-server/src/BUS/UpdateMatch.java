@@ -29,6 +29,7 @@ public class UpdateMatch {
 	{
 		String playerID= obj.getString("player ID");
 		int roomID = server.Lobby.get(playerID);
+		int battleTime = obj.getInt("Time");
 		// Validate number
 		int submitNumber = obj.getInt("fieldUpdate");
 		int curFindNumber = server.Room.get(roomID);
@@ -46,7 +47,7 @@ public class UpdateMatch {
 	 			+ "\"Type\": \"UpdateMatch\",\n"
 	 			+ "\"FoundNumber\": "+submitNumber+",\n"
 	 			+ "\"NextNumber\": "+nextNumber+",\n"
-	 			+ "\"Time\": \""+(210-(System.currentTimeMillis()-obj.getLong("TimeStart"))/1000)+"\",\n"
+	 			+ "\"Time\": \""+(battleTime-(System.currentTimeMillis()-obj.getLong("TimeStart"))/1000)+"\",\n"
 	 			+ "\"RemainNumber\": "+remain+"\n"
 	 			+ "}";
 		//Update next number

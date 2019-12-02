@@ -92,9 +92,7 @@ public class Square10 extends JFrame {
 		
 		prof = new EditProfile(dis, dos);
 		prof.setVisible(false);
-		
-		
-		
+
 		JLabel lblSwifty = new JLabel("SWIFTY");
 		lblSwifty.setForeground(SystemColor.textHighlight);
 		lblSwifty.setFont(new Font("OCR A Extended", Font.BOLD, 58));
@@ -177,7 +175,6 @@ public class Square10 extends JFrame {
 		
 		
 		listPlayer.setCellRenderer(new DefaultListCellRenderer() {
-
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index,
                       boolean isSelected, boolean cellHasFocus) {
@@ -186,17 +183,16 @@ public class Square10 extends JFrame {
                  if (Square10.this.playerList == null || Square10.this.playerList.size() < 1) return c;
                  String nextUser = value.toString();
                  setText(nextUser);
-                 if (isSelected) setBackground(getBackground().darker());
                  if (Square10.this.onlineList == null || Square10.this.onlineList.size() < 1) return c;
                  if (Square10.this.onlineList.contains(nextUser)) setBackground(Color.GREEN);
                  else setBackground(Color.WHITE);
+                 if (isSelected) setBackground(getBackground().darker());
                  return c;
             }
-
-       });
+		});
+		
 		listRanking.setCellRenderer(new DefaultListCellRenderer() {
-
-            @Override
+			@Override
             public Component getListCellRendererComponent(JList list, Object value, int index,
                       boolean isSelected, boolean cellHasFocus) {
                  Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -206,15 +202,14 @@ public class Square10 extends JFrame {
                  setText(nextUser);
                  try {
 					if (nextUser.equals(Square10.this.user.getString("Username"))) setBackground(Color.YELLOW);
-				} catch (JSONException e) {
+                 } catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+                 }
                  if (isSelected) setBackground(getBackground().darker());
                  return c;
             }
-
-       });
+		});
 		
 		JLabel lblPlayerList = new JLabel("PLAYER LIST");
 		lblPlayerList.setForeground(SystemColor.textHighlight);
@@ -239,7 +234,6 @@ public class Square10 extends JFrame {
 			/* Event for button */
 			
 			button[i].addActionListener((ActionListener) new ActionListener() {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
@@ -261,7 +255,11 @@ public class Square10 extends JFrame {
 								}
 							}
 							
-							BUS.sendNumber(dos, btnVal, nextNum+"", Square10.this.remainNumber.size()+"", Square10.this.user.getString("player ID"), point, Square10.this.match.getLong("TimeStart"));
+							String remain = Square10.this.remainNumber.size()+"";
+							String playerID = Square10.this.user.getString("player ID");
+							long timeStart = Square10.this.match.getLong("TimeStart");
+							int timeConfig = Square10.this.match.getInt("configTime");
+							BUS.sendNumber(dos, btnVal, nextNum+"", remain, playerID, point, timeStart, timeConfig);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "Ahhhh! Wrong number!!!", "Wrong",JOptionPane.ERROR_MESSAGE);
@@ -270,16 +268,12 @@ public class Square10 extends JFrame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					
-//					System.out.println(String.valueOf(Square10.this.number.get(j)));
 				}
-				
 			});
 			
 		}
 		
 		btnStart.addActionListener((ActionListener) new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -289,14 +283,12 @@ public class Square10 extends JFrame {
 						case "Match": {
 							btnStart.setText("Matching...");
 							btnStart.setEnabled(false);
-							
 							btnUsername.setEnabled(false);
-							
-							Matching(dis, dos);
+							BUS.sendSimpleRequest(dos, "Join room",Square10.this.user.getString("player ID"));
 							break;
 						}
-						case "Start Game": {							
-							StratGameFunc(dos);
+						case "Start Game": {
+							BUS.sendSimpleRequest(dos, "StartGame",Square10.this.user.getString("player ID"));
 							break;
 						}
 						default: {
@@ -305,14 +297,13 @@ public class Square10 extends JFrame {
 						}
 					}
 					
-				} catch (JSONException | IOException e1) {
+				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-//				System.out.println(String.valueOf(Square10.this.number.get(j)));
 			}
-			
 		});
+		
 		if (!(this.user == null)) {
 			initInfor(dis,dos);
 			Thread handleRespond = clientListener(dis,dos);
@@ -815,14 +806,10 @@ public class Square10 extends JFrame {
 	                        	}
 	                        	JOptionPane.showMessageDialog(null, "Enjoy the game", "Fighting!!!",JOptionPane.INFORMATION_MESSAGE);
 	                        	
-	                        	
-//	                        	String battleTime = TimerFormat(210);
 	                        	break;
 	                        }
 	                        case "StartGame": {
 	                        	Square10.this.match = obj;
-	                        	btnUsername.setText("Quit");
-	                        	btnUsername.setEnabled(true);
 	                        	Square10.this.t = new Timer(1000, new ActionListener() {
 	                        		public void actionPerformed(ActionEvent e) {
 	                        			// Do the task here
@@ -851,7 +838,7 @@ public class Square10 extends JFrame {
                         		    }
                         		});
                         		t.start();
-                        		StartGame(dis, dos);
+                        		StartGame();
 	                        	UpdateMatch();
 	                        	break;
 	                        }
@@ -886,9 +873,7 @@ public class Square10 extends JFrame {
 	                        		Square10.this.button[i].setText("X");
 	                        		Square10.this.button[i].setEnabled(true);
 	                        	}
-	                        	
-	                        	
-	                        	
+
 	                        	break;
 	                        }
 	                        default: {
@@ -905,18 +890,14 @@ public class Square10 extends JFrame {
         });
         return readMessage;
 	}
-	public void Matching(DataInputStream dis, DataOutputStream dos) throws JSONException, IOException {
-		String data ="{\n"
-			    +"\"Type\": \"Join room\",\n"
-				+"\"player ID\": \""+this.user.getString("player ID")+"\"\n"
-				+"}";
-		dos.writeUTF(data);
-	}
-	public void StartGame(DataInputStream dis, DataOutputStream dos) throws IOException, JSONException {
+
+	public void StartGame() throws IOException, JSONException {
 		btnStart.setText("Fighting...(>_<)");
 		btnStart.setEnabled(false);
 		btnStart.setVisible(true);
 		
+		btnUsername.setText("Quit");
+    	btnUsername.setEnabled(true);
 		Collections.shuffle(this.number);
 		this.remainNumber = new ArrayList<Integer>(this.number);
 		// Get match infor from server --todo later
@@ -941,18 +922,9 @@ public class Square10 extends JFrame {
 //                    } 
 //                } 
 //            } 
-//        }); 
-          
-        
+//        });
 	}
 	
-	public void StratGameFunc(DataOutputStream dos) throws IOException, JSONException {
-		String data ="{\n"
-			    +"\"Type\": \"StartGame\",\n"
-				+"\"player ID\": \""+this.user.getString("player ID")+"\"\n"
-				+"}";
-		dos.writeUTF(data);
-	}
 	public void  UpdateMatch() throws JSONException {
 		int number = this.match.getInt("NextNumber");
 		textField.setBackground(SystemColor.WHITE);
@@ -983,4 +955,5 @@ public class Square10 extends JFrame {
 		}
 		return result;
 	}
+
 }
