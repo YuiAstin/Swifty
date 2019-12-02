@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,9 +26,10 @@ public class server extends Thread{
 	private ServerSocket serverSocket = null;
 	private Socket socket = null;
 	public static HashMap<String, Integer> Lobby = new HashMap<String,Integer>(); // PlayerID - ID_room
-	public static HashMap<Integer, ArrayList<Integer>> Room = new HashMap<Integer, ArrayList<Integer>>(); // ID_room - Number - IsLucky
+	public static HashMap<Integer, Integer> Room = new HashMap<Integer, Integer>(); // ID_room - FindingNumber
 	public static HashMap<String, DataOutputStream> Player = new HashMap<String,DataOutputStream>(); // PlayerID - socket
 	public static HashMap<String, Integer> Point = new HashMap<String,Integer>(); // PlayerID - Match point
+	public static HashMap<Socket, DataOutputStream> Client = new HashMap<Socket, DataOutputStream>(); // Socket - DataOutputStream
 	
 	public server(Socket socket)
 	{
@@ -52,18 +54,18 @@ public class server extends Thread{
 				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 				data="";
 			
-				
+				Client.put(socket, dos);
 				long mainTime = System.currentTimeMillis()/1000;		
 				while(true)
 				{
 					String temp = dis.readUTF();
-					temp = Encryption.Decrypt(temp);
+//					temp = Encryption.Decrypt(temp);
 					System.out.println("-----------------------------");
 					System.out.println("Server receive:\n" + temp);
 					try {
 						JSONObject obj = new JSONObject(temp);						
 						data = Controller.Enroute(obj, a, dos);
-						data = Encryption.Encrypt(data);
+//						data = Encryption.Encrypt(data);
 						dos.writeUTF(data);
 						
 					} catch (JSONException e) {
@@ -75,6 +77,16 @@ public class server extends Thread{
 				
 			} catch (IOException ex) {
 				System.out.println("Client " + socket.getRemoteSocketAddress() + " Disconnected");
+				String playerID = "";
+				for (Entry<String, DataOutputStream> player : server.Player.entrySet()) {
+					if (player.getValue().equals(Client.get(socket))) {
+						playerID = player.getKey();
+					}
+				}
+				Lobby.remove(playerID);
+				Player.remove(playerID);
+				Point.remove(playerID);
+				Client.remove(socket);
 			}
 	}
 	public void run()

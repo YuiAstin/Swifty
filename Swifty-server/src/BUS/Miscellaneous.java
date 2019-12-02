@@ -50,6 +50,6 @@ public class Miscellaneous {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "normal";
+		return "easy";
 	}
 }

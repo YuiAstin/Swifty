@@ -1,48 +1,26 @@
 package main;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import org.json.JSONObject;
-
+import GUI.*;
 public class Client {
-	public static Socket socket = null;
-	public static JSONObject player = null;
-	
-	public Client(String host, int port) {
-		try {
-			socket = new Socket(host, port);
-			Scanner inputFromUser = new Scanner(System.in, "UTF-8");
-			
-			DataInputStream dis = new DataInputStream(socket.getInputStream());
-			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-			
-			String data = "";
-			System.out.println(dis.readUTF());
-			while (true) {
-				System.out.print("-------------------------------------------");
-				// Sent data from client
-				System.out.print("\nClient sent: ");
-				data = inputFromUser.nextLine();
-				dos.writeUTF(data);
-				// Response from server
-				String respond = dis.readUTF();
-				System.out.print("Client received:\n" + respond.substring(1) + "\n");
-				if (respond.substring(0, 1).equals("1")) {
-					System.out.println("Bye forever from server");
-					break;
-				}
-			}
-		} catch (Exception ex) {
-			System.out.println("Error: " + ex);
-		}
-	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnknownHostException, IOException {
 		// TODO Auto-generated method stub
-		Client client = new Client("localhost", 5050);
-
+		Socket socket = new Socket("localhost", 5000);
+		DataInputStream dis = new DataInputStream(socket.getInputStream());
+		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+		
+		Login login = new Login(dis, dos);
+		login.setVisible(true);
+		Scanner inputFromUser = new Scanner(System.in, "UTF-8");
+		String data = "";
+		
+		System.out.println("OK");
 	}
 
 }

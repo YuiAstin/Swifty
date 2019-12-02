@@ -7,81 +7,95 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import GUI.Square10;
 import main.*;
 
 
 public class BUS {
 
-	public static void sendNumber(DataOutputStream dos, String a) {
+	public static void sendNumber(DataOutputStream dos, String a, String nextNum, String Remain, String id, int point,long timeStart) {
 		// TODO Auto-generated method stub
 		try {
 			String result ="{\n"
 				    +"\"Type\": \"MatchUpdate\",\n"
-					+"\"player ID\": "+Client.player.getInt("player ID")+",\n"
+					+"\"player ID\": \""+id+"\",\n"
+					+"\"TimeStart\": "+timeStart+",\n"
 				    +"\"fieldUpdate\": "+a+",\n"
-				    +"\"Point\": "+1+"\n"
+				    +"\"Point\": "+point+",\n"
+				    +"\"NextNumber\": "+nextNum+",\n"
+				    +"\"RemainNumber\": "+Remain+"\n"
 				+"}";
 			dos.writeUTF(result);
-		} catch (JSONException | IOException e) {
+			if (Integer.parseInt(Remain) < 1) { //Endgame
+				sendEndGame(dos,id);
+			}
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 	
-	public static JSONArray get_rankingList()
+	public static void sendEndGame(DataOutputStream dos, String player_id) throws IOException {
+		String result ="{\n"
+			    +"\"Type\": \"EndGame\",\n"
+				+"\"player ID\": \""+player_id+"\"\n"
+				+"}";
+		dos.writeUTF(result);
+	}
+	
+	public static void get_rankingList(DataOutputStream dos)
 	{
 		
 		try {
 			String result ="{\"Type\": \"Ranking Request\"}";
-			DataOutputStream dos = new DataOutputStream(Client.socket.getOutputStream());
 			dos.writeUTF(result);
-			DataInputStream dis = new DataInputStream(Client.socket.getInputStream());
-			result = dis.readUTF();
-			JSONObject obj = new JSONObject(result);
-			return obj.getJSONArray("Player");
-		} catch (JSONException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
 	}
 	
-	public static JSONArray get_playerList()
+	public static void get_playerList(DataOutputStream dos)
 	{
-		
 		try {
 			String result ="{\"Type\": \"Player List Request\"}";
-			DataOutputStream dos = new DataOutputStream(Client.socket.getOutputStream());
 			dos.writeUTF(result);
-			DataInputStream dis = new DataInputStream(Client.socket.getInputStream());
-			result = dis.readUTF();
-			JSONObject obj = new JSONObject(result);
-			return obj.getJSONArray("Player");
-		} catch (JSONException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
 	}
 	
-	public static JSONObject startGame()
-	{
+//	public static JSONObject startGame()
+//	{
+//		try {
+//			String result ="{\n" + 
+//					"    \"Type\": \"Create room\",\n" + 
+//					"    \"player ID\": "+Client.player.getInt("player ID")+"\n" + 					 
+//					"}";
+//			DataOutputStream dos = new DataOutputStream(Client.socket.getOutputStream());
+//			dos.writeUTF(result);
+//			DataInputStream dis = new DataInputStream(Client.socket.getInputStream());
+//			result = dis.readUTF();
+//			JSONObject obj = new JSONObject(result);
+//			return obj;
+//		} catch (JSONException | IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
+
+	public static void get_onlineList(DataOutputStream dos) {
+		// TODO Auto-generated method stub
 		try {
-			String result ="{\n" + 
-					"    \"Type\": \"Create room\",\n" + 
-					"    \"player ID\": "+Client.player.getInt("player ID")+"\n" + 					 
-					"}";
-			DataOutputStream dos = new DataOutputStream(Client.socket.getOutputStream());
+			String result ="{\"Type\": \"Online List Request\"}";
 			dos.writeUTF(result);
-			DataInputStream dis = new DataInputStream(Client.socket.getInputStream());
-			result = dis.readUTF();
-			JSONObject obj = new JSONObject(result);
-			return obj;
-		} catch (JSONException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
 	}
 

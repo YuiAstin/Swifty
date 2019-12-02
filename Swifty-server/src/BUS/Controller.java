@@ -1,5 +1,6 @@
 package BUS;
 
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,10 +8,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import DAL.database;
+
 import main.server;
 
 public class Controller {
@@ -23,15 +27,18 @@ public class Controller {
 //				case "Signin": return a.get_aPlayerInfo(obj.getString("username"));
 				case "Signin": return a.signin(obj.getString("Username"), obj.getString("Password"), dos);
 				case "Signup": return a.set_registerPlayer(obj);
+				case "EditProfile": return a.set_aPlayerInfo(obj);
 				case "Win": return a.recordMatch(obj.getInt("player ID"));
 				case "Ranking Request": return a.get_rankingArray();
 				case "Player List Request": return a.get_playerArray();
+				case "Online List Request": return onlineList(a);
 				case "Quit": return cleanupRoom(obj); // Out room
 				case "Logout": return cleanupLobby(obj); // Logout
 				case "Create room": return createRoom(obj);
 				case "Join room": return joinRoom(obj,a); // Quick match -- Create new room if no empty room
 				case "MatchUpdate": return UpdateMatch.R_updateMatch(obj, a);
 				case "StartGame": return StartGame(obj,a);
+				case "EndGame": return EndGame(obj,a);
 			}
 			return "Er4"; // Er4 = Controller error
 		} catch (JSONException e) {
@@ -41,19 +48,77 @@ public class Controller {
 		}
 	}
 
-	private static String StartGame(JSONObject obj, database a) throws JSONException {
+	private static String onlineList(database a) throws JSONException {
+		// TODO Auto-generated method stub
+		String s ="{\n"
+				+"\"Status\": \"Success\",\n"
+	  			+"\"Error code\": \"Er0\",\n"
+				+"\"Type\": \"Online List\",\n";
+		ArrayList<String> players = new ArrayList<String>(); // List all player in room
+		for (Entry<String, Integer> lobby : server.Lobby.entrySet()) {
+			String playerID = lobby.getKey();
+			JSONObject obj = new JSONObject(a.get_aPlayerInfo(playerID));
+			String uname = obj.getString("Username");
+			players.add(uname);
+		}
+		String unames = String.join("\",\"", players);
+		s += "\"Player\": [\""+ unames +"\"]\n}";
+		return s;
+	}
+
+	private static String EndGame(JSONObject obj, database a) throws JSONException, IOException {
+		// TODO Auto-generated method stub
+		String PlayerID = obj.getInt("player ID")+"";
+		int roomID = server.Lobby.get(PlayerID);
+		String Player2ID = "";
+		String Winner ="";
+		int point = -1;
+		String matchResult = "Win";
+		
+		for (Entry<String, Integer> lobby : server.Lobby.entrySet()) {
+			if (lobby.getValue() == roomID) {
+				if (!lobby.getKey().equals(PlayerID)) Player2ID = lobby.getKey();
+				server.Lobby.replace(lobby.getKey(), -1);
+				int playerPoint = server.Point.get(lobby.getKey());
+				if (playerPoint > point) {
+					Winner = lobby.getKey();
+					point = playerPoint;
+				}
+				else {
+					if (playerPoint == point) {
+						matchResult = "Tie";
+					}
+				}
+			}
+		}
+		if (matchResult.equals("Win")) a.recordMatch(obj.getInt(Winner));
+		String result ="{\n"
+			    +"\"Type\": \"EndGame\",\n"
+			    +"\"Errorcode\": \"Er0\",\n"
+			    +"\"Result\": \""+matchResult+"\",\n"
+				+"\"player ID\": \""+Winner+"\"\n" // Win player
+				+"}";
+		server.Player.get(Player2ID).writeUTF(result);
+		return result;
+	}
+
+	private static String StartGame(JSONObject obj, database a) throws JSONException, IOException {
 		// TODO Auto-generated method stub
 		int player_id = obj.getInt("player ID");
-		int room_id = server.Lobby.get(player_id);
-		ArrayList<String> players = new ArrayList<String>();
+		int room_id = server.Lobby.get(player_id+"");
+		String player2ID = "";
+		
+		ArrayList<String> players = new ArrayList<String>(); // List all player in room
 		for (Entry<String, Integer> room : server.Lobby.entrySet()) {
 			String Player_id = room.getKey();
 			int number = room.getValue();
-			if (number == room_id) {
+			if (number == room_id) { // Player in room 
+				if (!Player_id.equals(player_id+"")) player2ID = Player_id;
 				String json = a.get_aPlayerInfo(Player_id);
 				JSONObject js = new JSONObject(json);
-				String uname = js.getString("username");
+				String uname = js.getString("Username");
 				players.add(uname);
+				
 				// Reset point
 				server.Point.replace(Player_id, 0);
 				
@@ -63,11 +128,20 @@ public class Controller {
 		String unames = String.join("\",\"", players);
 		
 		String s = a.get_matchSetting();
+
 		// Add first number
 		int range = 100;
 		int first_number = (int)(Math.random() *range) + 1;
+		// Save current FindingNumber
+		if (server.Room.containsKey(room_id)) server.Room.replace(room_id, first_number);
+		else server.Room.put(room_id, first_number);
+		
+		s += "\"TimeStart\": "+System.currentTimeMillis()+",\n";
 		s += "\"NextNumber\": "+first_number+",\n";
-		s += "\"Players\": [\""+ unames +"\"]}";
+		s += "\"Players\": [\""+ unames +"\"]\n}";
+		server.Player.get(player2ID).writeUTF(s);
+		
+		
 		
 		return s;
 	}

@@ -6,11 +6,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import BUS.BUS;
-import main.Client;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -40,10 +40,18 @@ public class Square10 extends JFrame {
 	private JTextField textField_2;
 	private JTextField textField_3;
 	private JButton btnStart;
+	private JButton btnUsername;
+	private EditProfile prof;
 	private JSONObject user = null;
+	private JSONObject match = null;
 	private JButton button[];
 	private ArrayList<Integer> number;
+	private ArrayList<Integer> remainNumber;
+	private ArrayList<String> playerList;
+	private ArrayList<String> onlineList;
+	private ArrayList<String> rankingList;
 	private Timer t;
+	
 	
 
 	/**
@@ -76,7 +84,7 @@ public class Square10 extends JFrame {
 		setBounds(100, 100, 1300, 750);
 		if (user != null) this.user = user;
 		
-		EditProfile prof = new EditProfile(dis, dos);
+		prof = new EditProfile(dis, dos);
 		prof.setVisible(false);
 		
 		
@@ -85,20 +93,27 @@ public class Square10 extends JFrame {
 		lblSwifty.setForeground(SystemColor.textHighlight);
 		lblSwifty.setFont(new Font("OCR A Extended", Font.BOLD, 58));
 		
-		JButton btnUsername = new JButton(this.user == null ? "Username" : this.user.getString("Username"));
+		btnUsername = new JButton(this.user == null ? "Username" : this.user.getString("Username"));
 		btnUsername.setFont(new Font("Arial", Font.BOLD, 17));
 		btnUsername.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					// Edit information
-//					setVisible(false);
-//					prof.mainFrame(Square10.this);
-//					prof.user(Square10.this.user);
-//					prof.loadProfile();
-//					prof.setVisible(true);
-					// shuffle array
-					StartGame(dis,dos);
-				} catch (Exception e1) {
+					String func = btnUsername.getText();
+					switch (func) {
+						case "Quit": {
+							BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"");
+							break;
+						}
+						default: { //Edit profile
+							// Edit information
+							setVisible(false);
+							prof.mainFrame(Square10.this);
+							prof.user(Square10.this.user);
+							prof.loadProfile();
+							prof.setVisible(true);
+							break;
+						}
+					}} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -120,6 +135,8 @@ public class Square10 extends JFrame {
 		
 		textField = new JTextField();
 		textField.setColumns(10);
+		textField.setEnabled(false);
+		textField.setForeground(SystemColor.BLACK);
 		
 		JLabel lblPlayer = new JLabel("P1:");
 		lblPlayer.setForeground(SystemColor.textHighlight);
@@ -131,16 +148,22 @@ public class Square10 extends JFrame {
 		
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
+		textField_1.setEnabled(false);
+		textField_1.setForeground(SystemColor.BLACK);
 		
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
+		textField_2.setEnabled(false);
+		textField_2.setForeground(SystemColor.BLACK);
 		
 		JLabel lblTime = new JLabel("TIME:");
 		lblTime.setForeground(SystemColor.textHighlight);
 		lblTime.setFont(new Font("Arial", Font.BOLD, 25));
+		lblTime.setEnabled(false);
 		
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
+		textField_3.setEnabled(false);
 		
 		JList listPlayer = new JList();
 		
@@ -173,7 +196,34 @@ public class Square10 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
-					BUS.sendNumber(dos, String.valueOf(Square10.this.number.get(j)));
+					try {
+						if (textField_3.getText().isBlank()) return;
+						if (Time2Seconds(textField_3.getText()) == 0) return;
+						int findVal = Square10.this.match.getInt("NextNumber");
+						String btnVal = String.valueOf(Square10.this.number.get(j));
+						if (findVal == Integer.parseInt(btnVal)) {
+							Collections.shuffle(Square10.this.remainNumber);
+							int nextNum = Square10.this.remainNumber.get(0);
+							Square10.this.remainNumber.remove(0);
+							int point = 1;
+							JSONArray a = Square10.this.match.getJSONArray("SpedupNum");
+							for (int k=0;k<a.length();k++) {
+								if (Integer.parseInt(a.get(k).toString()) == findVal) {
+									point++;
+									break;
+								}
+							}
+							
+							BUS.sendNumber(dos, btnVal, nextNum+"", Square10.this.remainNumber.size()+"", Square10.this.user.getString("player ID"), point, Square10.this.match.getLong("TimeStart"));
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "Ahhhh! Wrong number!!!", "Wrong",JOptionPane.ERROR_MESSAGE);
+						}
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 //					System.out.println(String.valueOf(Square10.this.number.get(j)));
 				}
 				
@@ -192,10 +242,14 @@ public class Square10 extends JFrame {
 						case "Match": {
 							btnStart.setText("Matching...");
 							btnStart.setEnabled(false);
+							
+							btnUsername.setEnabled(false);
+							
 							Matching(dis, dos);
 							break;
 						}
-						case "Start Game": {
+						case "Start Game": {							
+							StratGameFunc(dos);
 							break;
 						}
 						default: {
@@ -212,7 +266,9 @@ public class Square10 extends JFrame {
 			}
 			
 		});
-		
+		initInfor(dis,dos);
+		Thread handleRespond = clientListener(dis,dos);
+		handleRespond.start();
 		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -619,6 +675,164 @@ public class Square10 extends JFrame {
 	public void user(JSONObject user) {
 		this.user = user;
 	}
+	private void initInfor(DataInputStream dis, DataOutputStream dos) {
+		BUS.get_playerList(dos);
+		BUS.get_rankingList(dos);
+		BUS.get_onlineList(dos);
+	}
+	private Thread clientListener(DataInputStream dis, DataOutputStream dos) {
+		// readMessage thread 
+        Thread readMessage = new Thread(new Runnable()  
+        { 
+            @Override
+            public void run() { 
+  
+                while (true) { 
+                    try { 
+                        // read the message sent to this client 
+                        String msg = dis.readUTF();
+                        JSONObject obj = new JSONObject(msg);
+                        System.out.println(msg); 
+                        if (!obj.has("Type")) continue;
+                        switch (obj.getString("Type")) {
+	                        case "Player List": {
+	                			Square10.this.playerList = json2Array(obj.getJSONArray("Player"));
+	                        	break;
+	                        }
+							case "Ranking List": {
+								Square10.this.rankingList = json2Array(obj.getJSONArray("Player"));
+								break;
+							}
+							case "Online List": {
+								Square10.this.onlineList = json2Array(obj.getJSONArray("Player"));
+								break;
+							}
+							case "EditProfile": {
+								if (obj.has("Errorcode") && obj.getString("Errorcode").equals("Er0")) { //Success
+									JOptionPane.showMessageDialog(null, "Updated!", "Success",JOptionPane.INFORMATION_MESSAGE);
+									Square10.this.prof.user(obj);
+									Square10.this.prof.loadProfile();
+								}
+								else {
+									JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
+									
+								}
+								break;
+							}
+	                        case "UpdateMatch": {
+	                        	if (obj.getString("Errorcode").equals("Er1")) break;
+	                        	
+	                        	int FoundNumber = obj.getInt("FoundNumber");
+                    			for (int i=0;i<Square10.this.button.length;i++) {
+                    				if (Integer.parseInt(Square10.this.button[i].getText()) == FoundNumber) {
+                    					Square10.this.button[i].setEnabled(false);
+                    				}
+                    			}
+	                        	int number = obj.getInt("NextNumber");
+	                        	int time = obj.getInt("Time");
+	                        	textField_3.setText(TimerFormat(time));
+	                        	Square10.this.match.put("NextNumber", number);
+	                        	UpdateMatch();
+	                        }
+	                        case "CreateRoom": {
+	                        	textField_1.setText(Square10.this.user.getString("Username"));
+	                        	break;
+	                        }
+	                        case "JoinRoom": {
+	                        	textField_1.setText(obj.getString("player1 Name"));
+	                        	textField_2.setText(obj.getString("player2 Name"));
+	                        	btnStart.setText("Start Game");
+	                        	btnStart.setEnabled(true);
+	                        	
+	                        	if (!obj.getString("player1 Name").equals(user.getString("Username"))) {
+	                        		btnStart.setVisible(false);
+	                        	}
+	                        	JOptionPane.showMessageDialog(null, "Enjoy the game", "Fighting!!!",JOptionPane.INFORMATION_MESSAGE);
+	                        	
+	                        	
+//	                        	String battleTime = TimerFormat(210);
+	                        	break;
+	                        }
+	                        case "StartGame": {
+	                        	Square10.this.match = obj;
+	                        	btnUsername.setText("Quit");
+	                        	btnUsername.setEnabled(true);
+	                        	Square10.this.t = new Timer(1000, new ActionListener() {
+	                        		public void actionPerformed(ActionEvent e) {
+	                        			// Do the task here
+	                        			int battleTime = 210;
+	                        			String curTime = textField_3.getText();
+	                        			int timeSetInSeconds = curTime.isBlank() ? battleTime : Time2Seconds(curTime);
+	                        			
+	                        			String timeSet = TimerFormat(timeSetInSeconds-1);
+	                        			textField_3.setText(timeSet);
+	                        			if((timeSetInSeconds-1) == 0){// Endgame
+	                        				textField_3.setText(null);
+	                        				try {
+												BUS.sendEndGame(dos, Square10.this.user.getInt("player ID")+"");
+											} catch (IOException | JSONException e1) {
+												// TODO Auto-generated catch block
+												e1.printStackTrace();
+											}
+	                        				Square10.this.t.stop();
+                        			    }
+                        		    }
+                        		});
+                        		t.start();
+                        		StartGame(dis, dos);
+	                        	UpdateMatch();
+	                        	break;
+	                        }
+	                        case "EndGame": {
+	                        	if (btnStart.getText().equals("Match")) break;
+	                        	if (obj.getString("Result").equals("Win")) {
+	                        		if (obj.getString("player ID").equals(Square10.this.user.getString("player ID"))) {
+	                        			JOptionPane.showMessageDialog(null, "You're the winner!", "Congratulations!!!",JOptionPane.INFORMATION_MESSAGE);
+	                        		} else {
+	                        			JOptionPane.showMessageDialog(null, "Loser!", "Boo!!!",JOptionPane.INFORMATION_MESSAGE);
+	                        		}
+	                        	}
+	                        	else {
+	                        		JOptionPane.showMessageDialog(null, "Tie!", "Tie!!!",JOptionPane.INFORMATION_MESSAGE);
+	                        	}
+	                        	
+	                        	if (t.isRunning()) t.stop();
+	                        	
+	                        	btnStart.setText("Match");
+	                        	btnStart.setEnabled(true);
+	                        	btnStart.setVisible(true);
+	                        	
+	                        	btnUsername.setText(Square10.this.user.getString("Username"));
+	                        	btnUsername.setEnabled(true);
+	                        	
+	                        	textField.setText(null);
+	                        	textField_1.setText(null);
+	                        	textField_2.setText(null);
+	                        	textField_3.setText(null);
+	                        	
+	                        	for (int i=0;i<Square10.this.button.length;i++) {
+	                        		Square10.this.button[i].setText("X");
+	                        		Square10.this.button[i].setEnabled(true);
+	                        	}
+	                        	
+	                        	
+	                        	
+	                        	break;
+	                        }
+	                        default: {
+	                        	break;
+	                        }
+                        }
+                        
+                    } catch (Exception e) { 
+  
+                        e.printStackTrace(); 
+                    } 
+                } 
+            } 
+        });
+        return readMessage;
+	}
 	public void Matching(DataInputStream dis, DataOutputStream dos) throws JSONException, IOException {
 		String data ="{\n"
 			    +"\"Type\": \"Join room\",\n"
@@ -626,11 +840,17 @@ public class Square10 extends JFrame {
 				+"}";
 		dos.writeUTF(data);
 	}
-	public void StartGame(DataInputStream dis, DataOutputStream dos) {
+	public void StartGame(DataInputStream dis, DataOutputStream dos) throws IOException, JSONException {
+		btnStart.setText("Fighting...(>_<)");
+		btnStart.setEnabled(false);
+		btnStart.setVisible(true);
+		
 		Collections.shuffle(this.number);
+		this.remainNumber = this.number;
 		// Get match infor from server --todo later
 		for (int i = 0; i<this.button.length; i++) {
 			this.button[i].setText(this.number.get(i).toString());
+			this.button[i].setEnabled(true);
 		}
 //		Thread sendMessage = new Thread(new Runnable()  
 //        { 
@@ -651,87 +871,31 @@ public class Square10 extends JFrame {
 //            } 
 //        }); 
           
-        // readMessage thread 
-        Thread readMessage = new Thread(new Runnable()  
-        { 
-            @Override
-            public void run() { 
-  
-                while (true) { 
-                    try { 
-                        // read the message sent to this client 
-                        String msg = dis.readUTF();
-                        System.out.println(msg);
-                        JSONObject obj = new JSONObject(msg);
-                        switch (obj.getString("Type")) {
-	                        case "Player List": {
-	                        	
-	                        	break;
-	                        }
-	                        case "UpdateMatch": {
-	                        	int number = obj.getInt("NextNumber");
-	                        	int point = obj.getInt("Point");
-	                        	textField.setText(number+"");
-	                        	if (point>1) {
-	                        		textField.setForeground(SystemColor.RED);
-	                        	}
-	                        	else {
-	                        		textField.setForeground(SystemColor.BLACK);
-	                        	}
-	                        }
-	                        case "CreateRoom": {
-	                        	textField_1.setText(Square10.this.user.getString("Username"));
-	                        	break;
-	                        }
-	                        case "JoinRoom": {
-	                        	textField_1.setText(obj.getString("player1 Name"));
-	                        	textField_2.setText(obj.getString("player2 Name"));
-	                        	btnStart.setText("Start Game");
-	                        	btnStart.setEnabled(true);
-	                        	if (obj.getString("player1 Name").equals(user.getString("Username"))) {
-	                        		JOptionPane.showMessageDialog(null, "Enjoy the game", "Fighting!!!",JOptionPane.INFORMATION_MESSAGE);
-	                        	}
-	                        	else {
-	                        		btnStart.setVisible(false);
-	                        	}
-	                        	
-	                        	Square10.this.t = new Timer(1000, new ActionListener() {
-	                        		public void actionPerformed(ActionEvent e) {
-	                        			// Do the task here
-	                        			int battleTime = 210;
-	                        			String curTime = textField_3.getText();
-	                        			int timeSetInSeconds = curTime.isBlank() ? battleTime : Time2Seconds(curTime);
-	                        			
-	                        			String timeSet = TimerFormat(timeSetInSeconds-1);
-	                        			textField_3.setText(timeSet);
-	                        			if((timeSetInSeconds-1) == 0){// Endgame
-	                        				Square10.this.t.stop();
-                        			    }
-                        		    }
-                        		});
-                        		t.start();
-	                        	
-	                        	String battleTime = TimerFormat(210);
-	                        	break;
-	                        }
-	                        default: {
-	                        	break;
-	                        }
-                        }
-                        System.out.println(msg); 
-                    } catch (Exception e) { 
-  
-                        e.printStackTrace(); 
-                    } 
-                } 
-            } 
-        });
-        readMessage.start();
+        
+	}
+	
+	public void StratGameFunc(DataOutputStream dos) throws IOException, JSONException {
+		String data ="{\n"
+			    +"\"Type\": \"StartGame\",\n"
+				+"\"player ID\": \""+this.user.getString("player ID")+"\"\n"
+				+"}";
+		dos.writeUTF(data);
+	}
+	public void  UpdateMatch() throws JSONException {
+		int number = this.match.getInt("NextNumber");
+		textField.setBackground(SystemColor.WHITE);
+		JSONArray a = this.match.getJSONArray("SpedupNum");
+		for (int i=0;i<a.length();i++) {
+			if (Integer.parseInt(a.get(i).toString()) == number) {
+				textField.setBackground(SystemColor.RED);
+			}
+		}
+		textField.setText(number+"");
 	}
 	public String TimerFormat(int seconds) {
 		LocalTime timeOfDay = LocalTime.ofSecondOfDay(seconds);
 		String time = timeOfDay.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-		System.out.println(time);
+//		System.out.println(time);
 		String time_formated = time.substring(3);
 		return time_formated;
 	}
@@ -739,5 +903,12 @@ public class Square10 extends JFrame {
 		int minutes = Integer.parseInt(time.substring(0,2));
 		int seconds = Integer.parseInt(time.substring(3,time.length()));
 		return (minutes*60 + seconds);
+	}
+	public ArrayList<String> json2Array(JSONArray a) throws JSONException{
+		ArrayList<String> result = new ArrayList<String>();
+		for (int i=0;i<a.length();i++) {
+			result.add(a.get(i).toString());
+		}
+		return result;
 	}
 }

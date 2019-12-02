@@ -20,8 +20,8 @@ public class database {
 	  static final String DB_URL = "jdbc:mysql://localhost/swifty?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 	   //  Database credentials
-	   static final String USER = "root";
-	   static final String PASS = "";
+	   static final String USER = "vtt";
+	   static final String PASS = "dtl";
 	   
 	  public void initConnection()
 	  {
@@ -124,7 +124,7 @@ public class database {
 		  String result = "{\n"
 		  			+"\"Status\": \"Failed\",\n"
 		  			+"\"Error code\": \"Er1\",\n"
-					+"\"Type\": \"Player List\",\n" 
+					+"\"Type\": \"Ranking List\",\n" 
 					+"\"Player\":[\"???\",\"???\",\"???\",\"???\"]\n" 
 					+"}";
 		  try {
@@ -133,7 +133,7 @@ public class database {
 				result ="{\n"
 						+"\"Status\": \"Success\",\n"
 			  			+"\"Error code\": \"Er0\",\n"
-						+"\"Type\": \"Player List\",\n" 
+						+"\"Type\": \"Ranking List\",\n" 
 						+"\"Player\": [";
 				List<String> playerlist = new ArrayList<String>();
 				while(resultSet.next())
@@ -189,15 +189,16 @@ public class database {
 			}
 	  }
 	  
-	  public void set_aPlayerInfo(JSONObject obj)
+	  public String set_aPlayerInfo(JSONObject obj) throws JSONException
 	  {
 		  try {
-			String sql = "UPDATE `player` SET `username`="+obj.getString("Username")
-					  +",`PASSWORD`="+obj.getString("Password")
-					  +",`hoten`="+obj.getString("FnameLname")
-					  + ",`gender`="+obj.getString("Gender")
-					  + ",`ngsinh`="+obj.getString("Birthday")
-					  + "WHERE player_id =\""+obj.getString("Player ID");
+			String sql = "UPDATE `player` SET `username`=\""+obj.getString("Username")+"\""
+					  +",`PASSWORD`=\""+obj.getString("Password")+"\""
+					  +",`hoten`=\""+obj.getString("FnameLname")+"\""
+					  + ",`gender`=\""+obj.getString("Gender")+"\""
+					  + ",`ngsinh`=\""+obj.getString("Birthday")+"\""
+					  + " WHERE player_id="+obj.getString("player ID");
+			System.out.println(sql);
 			if(statement.execute(sql))
 				System.out.println("Succ");
 			else System.out.println("Failed to update user profile");
@@ -205,6 +206,7 @@ public class database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		  return get_aPlayerInfo(obj.getString("player ID")).replace("\"Type\": \"Signin\"", "\"Type\": \"EditProfile\"");
 	  }	  
 	  
 	  public String get_aPlayerInfo(String username)
@@ -225,7 +227,7 @@ public class database {
 			 while(resultSet.next())
 			 {				
 				 result ="{\n"
-						+ "\"Type\": \"Signin\",\n"				 		
+						+ "\"Type\": \"Signin\",\n"
 				 		+ "\"Errorcode\": \"Er0\",\n"
 				 		+ "\"player ID\": \""+resultSet.getString("player_id")+"\",\n"				 		
 				 		+ "\"Username\": \""+resultSet.getString("username")+"\",\n"
@@ -250,12 +252,13 @@ public class database {
 		  String result = "{\n"				 		
 		 			+ "\"Status\": \"Failed\",\n"
 		 			+ "\"Errorcode\": \"Er1\",\n"// Er1 = cannot get setting from db
+		 			+ "\"Type\": \"StartGame\",\n"
 		 			+ "\"Time\": \"\",\n"
 		 			+ "\"fieldSize\": \"\",\n"
 		 			+ "\"SpedupNum\": [0,-1],\n";
 //			 			+ ""; 
 		  try {
-			 String difficulty = "normal";			 
+			 String difficulty = "easy";			 
 			 difficulty = BUS.Miscellaneous.updateDiff();
 			 String sql = "SELECT * FROM server_config WHERE config_id = ?";
 			 //String sql = "SELECT * FROM SERVER_CONFIG";
@@ -269,12 +272,13 @@ public class database {
 			 while(resultSet.next())
 			 {				
 				 result ="{\n"				 		
-				 		+ "\"Status\": \"Success\"\n"
-				 		+ "\"Errorcode\": \"Er0\"\n"
+				 		+ "\"Status\": \"Success\",\n"
+				 		+ "\"Errorcode\": \"Er0\",\n"
+				 		+ "\"Type\": \"StartGame\",\n"
 				 		+ "\"Time\": "+resultSet.getString("time")+",\n"
-				 		+ "\"fieldSize\": ["+resultSet.getString("size_x")+","+resultSet.getString("size_y")+"]\n"
-				 		+ BUS.Miscellaneous.randomBonus(Integer.parseInt(resultSet.getString("size_x"))*Integer.parseInt(resultSet.getString("size_y")),1)+"\n"
-				 		+ "}";
+				 		+ "\"fieldSize\": ["+resultSet.getString("size_x")+","+resultSet.getString("size_y")+"],\n"
+				 		+ BUS.Miscellaneous.randomBonus(Integer.parseInt(resultSet.getString("size_x"))*Integer.parseInt(resultSet.getString("size_y")),1)+",\n";
+//				 		+ "}";
 			 }
 			 System.out.println(result);
 			 return result;

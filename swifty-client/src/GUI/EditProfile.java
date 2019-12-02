@@ -95,6 +95,7 @@ public class EditProfile extends JFrame {
 		lblUser.setLabelFor(txtUser);
 		txtUser.setColumns(10);
 		txtUser.setBorder(BorderFactory.createCompoundBorder( null, BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+		txtUser.setEnabled(false);
 		TextPrompt user = new TextPrompt("Username", txtUser);
 		
 		JLabel lblPassword = new JLabel("Password");
@@ -222,12 +223,6 @@ public class EditProfile extends JFrame {
 					lblErrorMessage.setVisible(true);
 					return ;
 				} else lblErrorMessage.setVisible(false);
-				if (_pass.isBlank()) {
-					JOptionPane.showMessageDialog(null, "Password is empty!", "Error",JOptionPane.ERROR_MESSAGE);
-					lblErrorMessage_1.setText("Password is empty!");
-					lblErrorMessage_1.setVisible(true);
-					return ;
-				} else lblErrorMessage_1.setVisible(false);
 				
 				if (!_pass.contentEquals(_conPass)) {
 					JOptionPane.showMessageDialog(null, "Confirm password does not match!", "Error",JOptionPane.ERROR_MESSAGE);
@@ -252,7 +247,18 @@ public class EditProfile extends JFrame {
 					return ;
 				} else lblErrorMessage_3.setVisible(false);
 				
-				_pass = passwordMD5(_pass);
+				if (_pass.isBlank()) {
+					try {
+						_pass = EditProfile.this.user.getString("Password");
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				else {
+					_pass = passwordMD5(_pass);
+				}
+				
 				System.out.println("User: " + _user);
 				System.out.println("Pass: " + _pass);
 				System.out.println("Confirm Password: " + _conPass);
@@ -262,6 +268,24 @@ public class EditProfile extends JFrame {
 				System.out.println("Birthday: " + _birthday);
 				System.out.println(_pass.contentEquals(_conPass));
 				System.out.println(_pass.equals(_conPass));
+				
+				try {
+					String command ="{\n"
+							+ "\"Type\": \"EditProfile\",\n"
+					 		+ "\"Errorcode\": \"Er0\",\n"
+					 		+ "\"player ID\": \""+EditProfile.this.user.getString("player ID")+"\",\n"
+					 		+ "\"Username\": \""+_user+"\",\n"
+					 		+ "\"Password\": \""+_pass+"\",\n"
+					 		+ "\"FnameLname\": \""+ _firstName.replace(" ", "") + " " + _lastName.replace(" ", "") +"\",\n"
+			 				+ "\"Gender\": \""+_gender+"\",\n"
+					 		+ "\"Birthday\": \""+_birthday+"\"\n"
+					 		+ "}";
+					dos.writeUTF(command);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 		btnSaveChanges.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -389,8 +413,9 @@ public class EditProfile extends JFrame {
 		txtUser.setText(obj.getString("Username"));
 		txtPassword.setText(null);
 		txtConPassword.setText(null);
-//		txtFirstname.setText(obj.getString("Firstname"));
-//		txtLastname.setText(obj.getString("Lastname"));
+		String tmp[] = obj.getString("FnameLname").split(" ");
+		txtFirstname.setText(tmp[0]);
+		if (tmp.length > 1) txtLastname.setText(tmp[1]);
 		selGender.setSelectedIndex(obj.getInt("Gender"));
 		txtBirthday.setText(obj.getString("Birthday").replace("-", "/"));
 	}

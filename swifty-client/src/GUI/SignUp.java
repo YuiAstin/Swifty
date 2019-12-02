@@ -239,7 +239,7 @@ public class SignUp extends JFrame {
 					 		+ "\"Errorcode\": \"Er0\",\n"			 		
 					 		+ "\"Username\": \""+_user+"\",\n"
 					 		+ "\"Password\": \""+_pass+"\",\n"
-					 		+ "\"FnameLname\": \""+ _firstName + " " + _lastName +"\",\n"
+					 		+ "\"FnameLname\": \""+ _firstName.replace(" ", "") + " " + _lastName.replace(" ", "") +"\",\n"
 			 				+ "\"Gender\": \""+_gender+"\",\n"
 					 		+ "\"Birthday\": \""+_birthday+"\"\n"
 					 		+ "}";

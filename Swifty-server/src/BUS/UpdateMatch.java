@@ -29,22 +29,38 @@ public class UpdateMatch {
 	{
 		String playerID= obj.getString("player ID");
 		int roomID = server.Lobby.get(playerID);
-		int nextNumber = obj.getInt("fieldUpdate");
+		// Validate number
+		int submitNumber = obj.getInt("fieldUpdate");
+		int curFindNumber = server.Room.get(roomID);
+		if (submitNumber != curFindNumber) {
+			return "{\n"				 		
+		 			+ "\"Errorcode\": \"Er1\",\n"// Er1 = wrong number
+		 			+ "\"Type\": \"UpdateMatch\"\n"
+		 			+ "}";
+		}
+		
+		int nextNumber = obj.getInt("NextNumber");
+		int remain = obj.getInt("RemainNumber");
 		String result = "{\n"				 		
 	 			+ "\"Errorcode\": \"Er0\",\n"// Er1 = cannot get setting from db
 	 			+ "\"Type\": \"UpdateMatch\",\n"
+	 			+ "\"FoundNumber\": "+submitNumber+",\n"
 	 			+ "\"NextNumber\": "+nextNumber+",\n"
-	 			+ "\"Point\": "+(1+LuckNumber())+"\n"
+	 			+ "\"Time\": \""+(210-(System.currentTimeMillis()-obj.getLong("TimeStart"))/1000)+"\",\n"
+	 			+ "\"RemainNumber\": "+remain+"\n"
 	 			+ "}";
-		
-		server.Point.replace(playerID, server.Point.get(playerID) + obj.getInt("Point")); // Update point
-		for (Entry<String, Integer> room : server.Lobby.entrySet()) {	// Update new number
+		//Update next number
+		server.Room.replace(roomID, nextNumber);
+		// Update point
+		server.Point.replace(playerID, server.Point.get(playerID) + obj.getInt("Point"));
+		// Update new number
+		for (Entry<String, Integer> room : server.Lobby.entrySet()) {
 			if (room.getValue() == roomID) { // Player in room
 				server.Player.get(room.getKey()).writeUTF(result);
 			}
 		}
 		
-		return "\"Errorcode\": \"Er0\"";
+		return result;
 	}
 	public static int LuckNumber() {
 		long tim = System.currentTimeMillis();
