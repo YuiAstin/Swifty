@@ -155,15 +155,22 @@ public class Login extends JFrame {
 						} else { // Login success
 							JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
 							
-							Square10 sq = null;
+							JFrame sq = null;
 							switch (obj.getString("Config ID"))
 							{
 								case "easy": {
-									sq = new Square10(dis, dos, obj);
-									sq.user(obj);
+									sq = new Square3(dis, dos, obj);
+									((Square3) sq).user(obj);
+									break;
+								}
+								case "normal": {
+									sq = new Square5(dis, dos, obj);
+									((Square5) sq).user(obj);
 									break;
 								}
 								default: {
+									sq = new Square10(dis, dos, obj);
+									((Square10) sq).user(obj);
 									break;
 								}
 							}

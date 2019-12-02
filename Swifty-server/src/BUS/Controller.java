@@ -146,7 +146,23 @@ public class Controller {
 		String s = a.get_matchSetting();
 
 		// Add first number
+		String matchConfig = Miscellaneous.updateDiff();
 		int range = 100;
+		switch (matchConfig) {
+			case "easy": {
+				range = 9;
+				break;
+			}
+			case "normal": {
+				range = 25;
+				break;
+			}
+			default : {
+				range = 100;
+				break;
+			}
+		}
+		
 		int first_number = (int)(Math.random() *range) + 1;
 		// Save current FindingNumber
 		if (server.Room.containsKey(room_id)) server.Room.replace(room_id, first_number);

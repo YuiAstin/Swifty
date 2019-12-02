@@ -163,6 +163,12 @@ public class EditProfile extends JFrame {
 				if (mainClass == Square10.class) {
 					((Square10) EditProfile.this.mainFrame).user(EditProfile.this.user);
 				}
+				if (mainClass == Square5.class) {
+					((Square5) EditProfile.this.mainFrame).user(EditProfile.this.user);
+				}
+				if (mainClass == Square3.class) {
+					((Square3) EditProfile.this.mainFrame).user(EditProfile.this.user);
+				}
 				setVisible(false);
 				EditProfile.this.mainFrame.setVisible(true);
 			}
