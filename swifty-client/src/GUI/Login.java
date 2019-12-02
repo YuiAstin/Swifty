@@ -138,37 +138,34 @@ public class Login extends JFrame {
 					 		+ "\"Username\": \""+userName+"\",\n"
 					 		+ "\"Password\": \""+password+"\",\n"
 					 		+ "}";
-//					command = Encryption.Encrypt(command); // Encrypt
+					command = Encryption.Encrypt(command); // Encrypt
 					dos.writeUTF(command);
 					
 					String respond = dis.readUTF();
-//					respond = Encryption.Decrypt(respond); // Decrypt
+					respond = Encryption.Decrypt(respond); // Decrypt
 					
 					System.out.println("Respond: " + respond);
 					if (respond.equals("Er1")) {
 						JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error",JOptionPane.ERROR_MESSAGE);
-					} else {
+					}
+					else { // Login success
 						JSONObject obj = new JSONObject(respond);
-						if (obj.getString("Errorcode").equals("Er2")) { // Account is logining 
-							JOptionPane.showMessageDialog(null, "Account is logining!", "Warning!",JOptionPane.WARNING_MESSAGE);
-						} else { // Login success
-							JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
-							
-							Square10 sq = null;
-							switch (obj.getString("Config ID"))
-							{
-								case "easy": {
-									sq = new Square10(dis, dos, obj);
-									sq.user(obj);
-									break;
-								}
-								default: {
-									break;
-								}
+						JOptionPane.showMessageDialog(null, "Hello " + obj.getString("FnameLname"), "Welcome",JOptionPane.INFORMATION_MESSAGE);
+						
+						Square10 sq = null;
+						switch (obj.getString("Config ID"))
+						{
+							case "easy": {
+								sq = new Square10(dis, dos, obj);
+								sq.user(obj);
+								break;
 							}
-							Login.this.dispose();
-							sq.setVisible(true);
+							default: {
+								break;
+							}
 						}
+						Login.this.dispose();
+						sq.setVisible(true);
 					}
 						
 				} catch (Exception e1) {
