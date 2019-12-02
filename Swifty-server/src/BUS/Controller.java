@@ -26,7 +26,7 @@ public class Controller {
 			{
 //				case "Signin": return a.get_aPlayerInfo(obj.getString("username"));
 				case "Signin": return a.signin(obj.getString("Username"), obj.getString("Password"), dos);
-				case "Signup": return a.set_registerPlayer(obj);
+				case "Signup": return SignUp(obj,a);
 				case "EditProfile": return a.set_aPlayerInfo(obj);
 				case "Win": return a.recordMatch(obj.getInt("player ID"));
 				case "Ranking Request": return a.get_rankingArray();
@@ -46,6 +46,20 @@ public class Controller {
 			e.printStackTrace();
 			return "Er4"; 
 		}
+	}
+	
+	private static String SignUp(JSONObject obj, database a) throws JSONException {
+		// TODO Auto-generated method stub
+		String checker = a.check_Username(obj.getString("Username"));
+		JSONObject js = new JSONObject(checker);
+		if (js.has("Total") && js.getInt("Total") < 1) {
+			return a.set_registerPlayer(obj);
+		}
+		// Username existed
+		return "{\n"
+				+ "\"Type\": \"SignUp\",\n"
+		 		+ "\"Errorcode\": \"Er4\"\n"
+		 		+ "}";
 	}
 
 	private static String onlineList(database a) throws JSONException {
@@ -100,7 +114,7 @@ public class Controller {
 			    +"\"Result\": \""+matchResult+"\",\n"
 				+"\"player ID\": \""+Winner+"\"\n" // Win player
 				+"}";
-		server.Player.get(Player2ID).writeUTF(result);
+		server.Player.get(Player2ID).writeUTF(Encryption.Encrypt(result));
 		return result;
 	}
 
@@ -141,7 +155,8 @@ public class Controller {
 		s += "\"TimeStart\": "+System.currentTimeMillis()+",\n";
 		s += "\"NextNumber\": "+first_number+",\n";
 		s += "\"Players\": [\""+ unames +"\"]\n}";
-		server.Player.get(player2ID).writeUTF(s);
+
+		server.Player.get(player2ID).writeUTF(Encryption.Encrypt(s));
 		
 		
 		
@@ -206,8 +221,7 @@ public class Controller {
 						+"\"player2 Name\": "+obj2.getString("Username")+",\n"
 						+"\"room ID\": "+room_id+"\n"
 					+"}";
-				
-				server.Player.get(player1_id).writeUTF(result); // Send info back to room master (player 1)
+				server.Player.get(player1_id).writeUTF(Encryption.Encrypt(result)); // Send info back to room master (player 1)
 				return result;
 			}
 		}

@@ -70,8 +70,8 @@ public class server extends Thread{
 						
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
-						dos.writeUTF("Er999");
+						e.printStackTrace();						
+						dos.writeUTF(Encryption.Encrypt("Er999"));
 					} 
 				}
 				
@@ -101,6 +101,7 @@ public class server extends Thread{
 										+"\"player ID\": \""+lobby.getKey()+"\"\n" // Win player
 										+"}";
 								try {
+									mess = Encryption.Encrypt(mess);
 									Player.get(lobby.getKey()).writeUTF(mess);
 								} catch (IOException e) {
 									// TODO Auto-generated catch block

@@ -57,7 +57,7 @@ public class UpdateMatch {
 		// Update new number
 		for (Entry<String, Integer> room : server.Lobby.entrySet()) {
 			if (room.getValue() == roomID) { // Player in room
-				server.Player.get(room.getKey()).writeUTF(result);
+				server.Player.get(room.getKey()).writeUTF(Encryption.Encrypt(result));
 			}
 		}
 		

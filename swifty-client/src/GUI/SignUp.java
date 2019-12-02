@@ -21,6 +21,9 @@ import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
+
+import BUS.Encryption;
+
 import com.jgoodies.forms.layout.FormSpecs;
 
 import javax.swing.BorderFactory;
@@ -243,16 +246,21 @@ public class SignUp extends JFrame {
 			 				+ "\"Gender\": \""+_gender+"\",\n"
 					 		+ "\"Birthday\": \""+_birthday+"\"\n"
 					 		+ "}";
+					command = Encryption.Encrypt(command);
 					dos.writeUTF(command);
+					
 					String respond = dis.readUTF();
+					respond = Encryption.Decrypt(respond);
 					System.out.println("Respond: " + respond);
-					if (respond.equals("Er1")) {
-						JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
-					}
-					else {
-						JSONObject obj = new JSONObject(respond);
+					JSONObject obj = new JSONObject(respond);
+					if (obj.getString("Errorcode").equals("Er0")) {
 						JOptionPane.showMessageDialog(null, "Sign up success", "Welcome",JOptionPane.INFORMATION_MESSAGE);
-						
+					} else {
+						if (obj.getString("Errorcode").equals("Er4")) {
+							JOptionPane.showMessageDialog(null, "Username existed!", "Error",JOptionPane.ERROR_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(null, "Something went wrong!", "Error",JOptionPane.ERROR_MESSAGE);
+						}
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block

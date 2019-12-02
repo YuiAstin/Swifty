@@ -88,7 +88,7 @@ public class database {
 //					return "\"Error code:\" \"Er3\""; //Unable to insert new player into record table
 				preparedStatement.executeUpdate();
 				String result ="{\n"
-						+ "\"Type\": \"Signin\",\n"				 		
+						+ "\"Type\": \"SignUp\",\n"				 		
 				 		+ "\"Errorcode\": \"Er0\",\n"
 				 		+ "\"player ID\": \""+resultSet.getString("player_id")+"\",\n"				 		
 				 		+ "\"Username\": \""+resultSet.getString("username")+"\",\n"
@@ -110,12 +110,12 @@ public class database {
 					}
 					System.out.println();
 					System.out.println("Failed to register user profile");
-					return "\"Error code:\" \"Er1\"";
+					return "\"Error code\": \"Er1\"";
 				}
 		} catch (SQLException | JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return "\"Error code:\" \"Er2\""; // Er2 = Unknown bug
+			return "\"Error code\": \"Er2\""; // Er2 = Unknown bug
 		}
 	  }
 	  
@@ -253,6 +253,7 @@ public class database {
 		 			+ "\"Status\": \"Failed\",\n"
 		 			+ "\"Errorcode\": \"Er1\",\n"// Er1 = cannot get setting from db
 		 			+ "\"Type\": \"StartGame\",\n"
+		 			+ "\"configTime\": \"\",\n"
 		 			+ "\"Time\": \"\",\n"
 		 			+ "\"fieldSize\": \"\",\n"
 		 			+ "\"SpedupNum\": [0,-1],\n";
@@ -338,17 +339,17 @@ public class database {
 		 				+ "\"Gender\": \""+resultSet.getString("gender")+"\",\n"
 				 		+ "\"Birthday\": \""+resultSet.getString("ngsinh")+"\"\n"
 				 		+ "}";
-				 // Generate ID player
-				 server.Lobby.put(resultSet.getString("player_id"), -1);
-				 server.Player.put(resultSet.getString("player_id"), dos);
-				 server.Point.put(resultSet.getString("player_id"), 0);
+				 // Check isLogin
+				 if (server.Lobby.containsKey(resultSet.getString("player_id"))) {
+					 result = result.replace("Er0", "Er2"); //IsLogining
+				 }
+				 else {
+					// Save ID player
+					 server.Lobby.put(resultSet.getString("player_id"), -1);
+					 server.Player.put(resultSet.getString("player_id"), dos);
+					 server.Point.put(resultSet.getString("player_id"), 0);
+				 } 
 			 }
-			 
-
-			 
-			
-    
-			 
 			 System.out.println(result);
 			 return result;
 		} catch (SQLException e) {
@@ -357,6 +358,37 @@ public class database {
 			return result;
 		}
 	}
+	public String check_Username(String username)
+	  {		  
+		  String result = "\"Error code\": \"Er2\""; // Unknow error
+		  try {		 
+			 String sql = "SELECT COUNT(*) AS Total FROM player WHERE username = ?";
+			 preparedStatement = connect.prepareStatement(sql);
+			 preparedStatement.setString(1, username);
+			 if(!preparedStatement.execute())
+			 {
+				 System.out.println("broke");
+			 }
+			 resultSet = preparedStatement.executeQuery();	
+			 resultSet = preparedStatement.getResultSet();
+			 
+			 while(resultSet.next())
+			 {				
+				 result ="{\n"
+						+ "\"Type\": \"Check Username\",\n"
+				 		+ "\"Errorcode\": \"Er0\",\n"
+				 		+ "\"Total\": \""+resultSet.getInt("Total")+"\"\n"
+				 		+ "}";
+			 }
+			 System.out.println(result);
+			 return result;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return result;
+		} 
+		  
+	  }
 
 	
 }
